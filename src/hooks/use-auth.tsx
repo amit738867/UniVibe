@@ -46,15 +46,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (result) {
           // If there was a sign-in result, Firebase's onAuthStateChanged
           // will handle setting the user and redirecting.
-          // We don't need to do anything else here.
+          // We can show a toast here to confirm login.
           toast({
-            title: `Welcome, ${result.user.displayName}!`,
+            title: `Welcome back, ${result.user.displayName}!`,
             description: "You've successfully signed in.",
           });
+          // After processing, onAuthStateChanged will fire with the new user.
         }
       } catch (error: any) {
         console.error("Error getting redirect result", error);
-        if (error.code !== 'auth/cancelled-popup-request') {
+        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
            toast({
               title: 'Error signing in',
               description: error.message,
@@ -70,7 +71,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (currentUser) {
           router.push('/discover');
         } else {
-          router.push('/');
+          // Only redirect to login if we are not in the middle of a redirect sign-in
+          getRedirectResult(auth).then((result) => {
+            if (!result) {
+              router.push('/');
+            }
+          });
         }
       });
       
@@ -105,11 +111,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error: any) {
       console.error("Error signing in with Google", error);
-       toast({
-        title: 'Error signing in',
-        description: error.message,
-        variant: 'destructive',
-      });
+       if (error.code !== 'auth/popup-closed-by-user') {
+         toast({
+          title: 'Error signing in',
+          description: error.message,
+          variant: 'destructive',
+        });
+       }
        setLoading(false);
     }
   };
