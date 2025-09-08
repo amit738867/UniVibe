@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const handleRedirectResult = async () => {
+    const processRedirectResult = async () => {
       try {
         const result = await getRedirectResult(auth);
         if (result) {
@@ -46,10 +46,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             title: `Welcome, ${result.user.displayName}!`,
             description: "You've successfully signed in.",
           });
-          // Redirect will be handled by the onAuthStateChanged listener
+          // The onAuthStateChanged listener below will handle the redirect to /discover
         }
       } catch (error: any) {
-        console.error("Error processing redirect result", error);
+        console.error("Error during getRedirectResult:", error);
         toast({
           title: 'Sign-in Error',
           description: error.message,
@@ -59,11 +59,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsProcessingRedirect(false);
       }
     };
-
-    handleRedirectResult();
+    processRedirectResult();
   }, [toast]);
 
   useEffect(() => {
+    // Don't run the auth state listener until the redirect has been processed
+    if (isProcessingRedirect) return;
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setAuthLoading(false);
@@ -73,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, [isProcessingRedirect, router]);
 
   const loading = authLoading || isProcessingRedirect;
 
