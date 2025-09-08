@@ -1,25 +1,18 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Download } from 'lucide-react';
 import { UniVibeLogo } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { usePWA } from '@/hooks/use-pwa';
-import { useRouter } from 'next/navigation';
 
 export default function LandingPage() {
   const { canInstall, installPWA } = usePWA();
-  const router = useRouter();
 
   const handleInstallClick = async () => {
     if (!canInstall) return;
-    const success = await installPWA();
-    if (success) {
-      // Redirect to the login page after successful installation
-      router.push('/');
-    }
+    await installPWA();
   };
 
   return (

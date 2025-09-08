@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -15,13 +16,14 @@ interface BeforeInstallPromptEvent extends Event {
 export function usePWA() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [canInstall, setCanInstall] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
       // Stash the event so it can be triggered later.
-      setDeferredPrompt(e as BeforeInstall_prompt_event);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
       // Update UI to notify the user they can install the PWA
       setCanInstall(true);
       console.log(`'beforeinstallprompt' event was fired.`);
@@ -63,6 +65,8 @@ export function usePWA() {
     
     if (outcome === 'accepted') {
       console.log('User accepted the A2HS prompt');
+      // Redirect to the login page after successful installation
+      router.push('/');
       return true;
     } else {
       console.log('User dismissed the A2HS prompt');
