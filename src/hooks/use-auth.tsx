@@ -42,11 +42,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const result = await getRedirectResult(auth);
         if (result) {
+          // This means the user has just signed in via redirect.
           toast({
             title: `Welcome, ${result.user.displayName}!`,
             description: "You've successfully signed in.",
           });
-          // The onAuthStateChanged listener below will handle the redirect to /discover
+          // The onAuthStateChanged listener below will handle the user state and redirect to /discover
         }
       } catch (error: any) {
         console.error("Error during getRedirectResult:", error);
@@ -63,19 +64,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [toast]);
 
   useEffect(() => {
-    // Don't run the auth state listener until the redirect has been processed
-    if (isProcessingRedirect) return;
-
+    // This listener handles auth state changes from all sources (popup, redirect, session persistence)
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setAuthLoading(false);
       if (currentUser) {
-        router.push('/discover');
+        // Only redirect if we are not on the landing page, to avoid loops
+        if(window.location.pathname !== '/discover') {
+          router.push('/discover');
+        }
       }
     });
 
     return () => unsubscribe();
-  }, [isProcessingRedirect, router]);
+  }, [router]);
 
   const loading = authLoading || isProcessingRedirect;
 
@@ -83,8 +85,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const provider = new GoogleAuthProvider();
     try {
       if (isMobile) {
+        // This will navigate away and then back, the result is handled by getRedirectResult
         await signInWithRedirect(auth, provider);
       } else {
+        // This will open a popup
         const result = await signInWithPopup(auth, provider);
         toast({
             title: `Welcome, ${result.user.displayName}!`,
