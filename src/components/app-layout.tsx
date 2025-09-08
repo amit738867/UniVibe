@@ -6,6 +6,7 @@ import BottomNav from '@/components/bottom-nav';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 
 
 type AppLayoutProps = {
@@ -25,7 +26,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   if (loading || !user) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
-            <div className="text-primary">Loading...</div>
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
     )
   }
