@@ -1,30 +1,47 @@
 'use client';
 
 import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, PanInfo } from 'framer-motion';
 import { mockProfiles, type UserProfile } from '@/lib/data';
 import ProfileCard from './profile-card';
 import ActionButtons from './action-buttons';
 import AiMatchDialog from './ai-match-dialog';
 import MatchModal from './match-modal';
 
+const swipeConfidenceThreshold = 10000;
+const swipePower = (offset: number, velocity: number) => {
+  return Math.abs(offset) * velocity;
+};
+
 export default function DiscoverClient() {
   const [profiles, setProfiles] = useState<UserProfile[]>(mockProfiles);
   const [isMatchModalOpen, setMatchModalOpen] = useState(false);
   const [lastMatchedUser, setLastMatchedUser] = useState<UserProfile | null>(null);
+  const [exitX, setExitX] = useState<string | number>('100%');
 
-  const handleSwipe = () => {
+  const paginate = (direction: number) => {
+    // direction > 0 is like, direction < 0 is dislike
+    if (direction > 0) {
+      const likedUser = profiles[0];
+      // Randomly trigger a match modal on like
+      if (Math.random() > 0.5 && likedUser) {
+        setLastMatchedUser(likedUser);
+        setMatchModalOpen(true);
+      }
+    }
+    setExitX(direction > 0 ? '100%' : '-100%');
     setProfiles((prev) => prev.slice(1));
   };
 
-  const handleLike = () => {
-    const likedUser = profiles[0];
-    // Randomly trigger a match modal
-    if (Math.random() > 0.5 && likedUser) {
-      setLastMatchedUser(likedUser);
-      setMatchModalOpen(true);
+
+  const handleDragEnd = (e: MouseEvent | TouchEvent | PointerEvent, { offset, velocity }: PanInfo) => {
+    const swipe = swipePower(offset.x, velocity.x);
+
+    if (swipe < -swipeConfidenceThreshold) {
+      paginate(-1); // Swipe left (dislike)
+    } else if (swipe > swipeConfidenceThreshold) {
+      paginate(1); // Swipe right (like)
     }
-    handleSwipe();
   };
 
   if (profiles.length === 0) {
@@ -57,31 +74,20 @@ export default function DiscoverClient() {
   return (
     <>
       <div className="relative h-[70vh] md:h-[75vh] flex items-center justify-center">
-        <AnimatePresence>
+        <AnimatePresence initial={false}>
           {profiles
             .map((profile, index) => (
               <motion.div
                 key={profile.id}
                 className="absolute"
-                style={{
-                  zIndex: profiles.length - index,
-                }}
+                style={{ zIndex: profiles.length - index }}
                 initial={{ scale: 0.95, y: 20, opacity: 0 }}
-                animate={{
-                  scale: 1,
-                  y: 0,
-                  opacity: 1,
-                  transition: {
-                    duration: 0.3,
-                    ease: 'easeOut',
-                  },
-                }}
-                exit={{
-                  x: 300,
-                  opacity: 0,
-                  scale: 0.8,
-                  transition: { duration: 0.3, ease: 'easeIn' },
-                }}
+                animate={{ scale: 1, y: 0, opacity: 1, transition: { duration: 0.4, ease: 'easeOut' } }}
+                exit={{ x: exitX, opacity: 0, scale: 0.8, transition: { duration: 0.4, ease: 'easeIn' } }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={1}
+                onDragEnd={handleDragEnd}
               >
                 <ProfileCard profile={profile} />
               </motion.div>
@@ -89,7 +95,7 @@ export default function DiscoverClient() {
             .slice(0, 1)}
         </AnimatePresence>
       </div>
-      <ActionButtons onDislike={handleSwipe} onLike={handleLike} />
+      <ActionButtons onDislike={() => paginate(-1)} onLike={() => paginate(1)} />
       {lastMatchedUser && (
         <MatchModal
             isOpen={isMatchModalOpen}
