@@ -37,45 +37,70 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-      if (user) {
-        router.push('/discover');
-      } else {
-        router.push('/');
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
-
-  useEffect(() => {
-    const handleRedirectResult = async () => {
-        setLoading(true);
-        try {
-            await getRedirectResult(auth);
-        } catch (error: any) {
-            console.error("Error getting redirect result", error);
-            toast({
-                title: 'Error signing in',
-                description: error.message,
-                variant: 'destructive',
-            });
-        } finally {
-            setLoading(false);
+    // This function runs when the provider mounts.
+    const handleAuthFlow = async () => {
+      setLoading(true);
+      try {
+        // First, check if there's a redirect result to process.
+        const result = await getRedirectResult(auth);
+        if (result) {
+          // If there was a sign-in result, Firebase's onAuthStateChanged
+          // will handle setting the user and redirecting.
+          // We don't need to do anything else here.
+          toast({
+            title: `Welcome, ${result.user.displayName}!`,
+            description: "You've successfully signed in.",
+          });
         }
+      } catch (error: any) {
+        console.error("Error getting redirect result", error);
+        if (error.code !== 'auth/cancelled-popup-request') {
+           toast({
+              title: 'Error signing in',
+              description: error.message,
+              variant: 'destructive',
+          });
+        }
+      }
+
+      // After handling any potential redirect, set up the listener.
+      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        setUser(currentUser);
+        setLoading(false);
+        if (currentUser) {
+          router.push('/discover');
+        } else {
+          router.push('/');
+        }
+      });
+      
+      // Return the unsubscribe function to be called on cleanup.
+      return unsubscribe;
     };
-    handleRedirectResult();
-  }, [toast]);
+    
+    // Call the async function and store the unsubscribe function it returns.
+    const unsubscribePromise = handleAuthFlow();
+
+    // The actual cleanup function for useEffect.
+    return () => {
+      unsubscribePromise.then(unsubscribe => {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+      });
+    };
+  }, [router, toast]);
 
 
   const signInWithGoogle = async () => {
+    setLoading(true);
     const provider = new GoogleAuthProvider();
     try {
       if (isMobile) {
+        // Redirect flow for mobile
         await signInWithRedirect(auth, provider);
       } else {
+        // Popup flow for desktop
         await signInWithPopup(auth, provider);
       }
     } catch (error: any) {
@@ -85,6 +110,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         description: error.message,
         variant: 'destructive',
       });
+       setLoading(false);
     }
   };
 
