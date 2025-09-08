@@ -21,20 +21,20 @@ export default function LandingPage() {
       <div className="absolute inset-0 z-0">
         <motion.div
           className="absolute left-1/4 top-0 h-72 w-72 rounded-full bg-primary/20 opacity-90 blur-[120px] filter"
+          initial={{ opacity: 0, scale: 0.5 }}
           animate={{
-            x: [0, 20, 0],
-            y: [0, 40, 0],
-            scale: [1, 1.1, 1],
-            transition: { duration: 8, repeat: Infinity, ease: 'easeInOut' },
+            opacity: 1,
+            scale: 1,
+            transition: { duration: 1.5, ease: 'easeOut' },
           }}
         />
         <motion.div
           className="absolute right-1/4 bottom-0 h-72 w-72 rounded-full bg-accent/20 opacity-90 blur-[120px] filter"
+          initial={{ opacity: 0, scale: 0.5 }}
           animate={{
-            x: [0, -20, 0],
-            y: [0, -40, 0],
-            scale: [1, 1.1, 1],
-            transition: { duration: 10, repeat: Infinity, ease: 'easeInOut' },
+            opacity: 1,
+            scale: 1,
+            transition: { duration: 1.5, delay: 0.5, ease: 'easeOut' },
           }}
         />
       </div>
