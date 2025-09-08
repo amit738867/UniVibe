@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Flame, MessageCircle, User, LogOut } from 'lucide-react';
+import { Flame, MessageCircle, User, LogOut, Download } from 'lucide-react';
 import { UniVibeLogo } from '@/components/icons';
 import ModeToggle from '@/components/mode-toggle';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,8 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { useAuth } from '@/hooks/use-auth';
+import { usePWA } from '@/hooks/use-pwa';
+import { Button } from './ui/button';
 
 const navLinks = [
   { href: '/discover', label: 'Discover', icon: Flame },
@@ -25,6 +27,7 @@ const navLinks = [
 export default function Header() {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
+  const { canInstall, installPWA } = usePWA();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
@@ -56,7 +59,13 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="flex flex-1 items-center justify-end gap-4">
+        <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">
+          {canInstall && (
+            <Button size="sm" variant="outline" onClick={installPWA} className="gap-2">
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline">Install App</span>
+            </Button>
+          )}
           <ModeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
