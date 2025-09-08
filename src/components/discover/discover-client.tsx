@@ -1,0 +1,102 @@
+'use client';
+
+import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { mockProfiles, type UserProfile } from '@/lib/data';
+import ProfileCard from './profile-card';
+import ActionButtons from './action-buttons';
+import AiMatchDialog from './ai-match-dialog';
+import MatchModal from './match-modal';
+
+export default function DiscoverClient() {
+  const [profiles, setProfiles] = useState<UserProfile[]>(mockProfiles);
+  const [isMatchModalOpen, setMatchModalOpen] = useState(false);
+  const [lastMatchedUser, setLastMatchedUser] = useState<UserProfile | null>(null);
+
+  const handleSwipe = () => {
+    setProfiles((prev) => prev.slice(1));
+  };
+
+  const handleLike = () => {
+    const likedUser = profiles[0];
+    // Randomly trigger a match modal
+    if (Math.random() > 0.5 && likedUser) {
+      setLastMatchedUser(likedUser);
+      setMatchModalOpen(true);
+    }
+    handleSwipe();
+  };
+
+  if (profiles.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[70vh] text-center">
+        <h2 className="text-2xl font-headline font-semibold text-primary">No More Profiles</h2>
+        <p className="text-muted-foreground mt-2">
+          You've seen everyone! Try adjusting your filters or check back later.
+        </p>
+        <AiMatchDialog onMatchesFound={(newMatches) => {
+            const newProfiles: UserProfile[] = newMatches.matches.map((m, i) => {
+                const name = m.split(' ')[0];
+                return {
+                    id: 100 + i,
+                    name: name,
+                    age: Math.floor(Math.random() * 5) + 20,
+                    major: 'AI Suggested',
+                    distance: 'nearby',
+                    interests: ['Adventure', 'Spontaneity'],
+                    bio: m,
+                    images: [`https://picsum.photos/seed/${name}/600/800`],
+                }
+            })
+            setProfiles(newProfiles);
+        }} />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="relative h-[70vh] md:h-[75vh] flex items-center justify-center">
+        <AnimatePresence>
+          {profiles
+            .map((profile, index) => (
+              <motion.div
+                key={profile.id}
+                className="absolute"
+                style={{
+                  zIndex: profiles.length - index,
+                }}
+                initial={{ scale: 0.95, y: 20, opacity: 0 }}
+                animate={{
+                  scale: 1,
+                  y: 0,
+                  opacity: 1,
+                  transition: {
+                    duration: 0.3,
+                    ease: 'easeOut',
+                  },
+                }}
+                exit={{
+                  x: 300,
+                  opacity: 0,
+                  scale: 0.8,
+                  transition: { duration: 0.3, ease: 'easeIn' },
+                }}
+              >
+                <ProfileCard profile={profile} />
+              </motion.div>
+            ))
+            .slice(0, 1)}
+        </AnimatePresence>
+      </div>
+      <ActionButtons onDislike={handleSwipe} onLike={handleLike} />
+      {lastMatchedUser && (
+        <MatchModal
+            isOpen={isMatchModalOpen}
+            onOpenChange={setMatchModalOpen}
+            matchedUser={lastMatchedUser}
+        />
+       )}
+    </>
+  );
+}
