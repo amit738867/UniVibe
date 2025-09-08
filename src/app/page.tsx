@@ -25,7 +25,8 @@ export default function AuthenticationPage() {
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
 
   useEffect(() => {
-    // If we are done loading and there's no user, it's a new session.
+    // If we are done loading and a user exists, useAuth will handle redirecting to /discover.
+    // If there is no user, we check if we should redirect to the landing page.
     if (!loading && !user) {
       // Check if the app is running in standalone mode (already installed).
       // If not, redirect to the new landing page.
@@ -35,7 +36,6 @@ export default function AuthenticationPage() {
           return;
       }
     }
-    // If there IS a user, the useAuth hook will redirect to /discover.
   }, [loading, user, router]);
 
 
