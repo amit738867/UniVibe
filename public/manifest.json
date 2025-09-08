@@ -1,11 +1,11 @@
 {
-  "name": "UniVibe - Find your spark on campus",
+  "name": "UniVibe",
   "short_name": "UniVibe",
-  "description": "UniVibe is a campus connection app to help you find your spark, whether it's for dating or making new friends.",
+  "description": "Find your spark on campus.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#18181b",
-  "theme_color": "#2563eb",
+  "background_color": "#000000",
+  "theme_color": "#1c1c1c",
   "icons": [
     {
       "src": "/icon-192x192.png",
@@ -16,18 +16,6 @@
       "src": "/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
-    },
-    {
-        "src": "/icon-maskable-192x192.png",
-        "sizes": "192x192",
-        "type": "image/png",
-        "purpose": "maskable"
-    },
-    {
-        "src": "/icon-maskable-512x512.png",
-        "sizes": "512x512",
-        "type": "image/png",
-        "purpose": "maskable"
     }
   ]
 }
