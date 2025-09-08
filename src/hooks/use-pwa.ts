@@ -21,7 +21,7 @@ export function usePWA() {
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
       // Stash the event so it can be triggered later.
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      setDeferredPrompt(e as BeforeInstall_prompt_event);
       // Update UI to notify the user they can install the PWA
       setCanInstall(true);
       console.log(`'beforeinstallprompt' event was fired.`);

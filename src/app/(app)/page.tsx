@@ -26,17 +26,16 @@ export default function AuthenticationPage() {
 
   useEffect(() => {
     // This effect runs on the client after hydration
-    if (!loading && !user) {
-      // Check if the app is running in standalone mode (already installed).
+    if (typeof window !== 'undefined') {
+       // Check if the app is running in standalone mode (already installed).
       // If not, redirect to the new landing page.
       const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
-      if (!isInStandaloneMode && typeof window !== 'undefined' && window.location.pathname !== '/land') {
+      if (!isInStandaloneMode && window.location.pathname !== '/land') {
           router.replace('/land');
-          return;
       }
     }
      // If a user is logged in, useAuth will handle redirecting to /discover.
-  }, [loading, user, router]);
+  }, [router]);
 
 
   const handleGoogleSignIn = async () => {
