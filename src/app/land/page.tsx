@@ -16,8 +16,7 @@ export default function LandingPage() {
   const handleInstallClick = async () => {
     const success = await installPWA();
     if (success) {
-      // Redirect to the main app after successful installation
-      router.push('/');
+        router.push('/');
     }
   };
   
@@ -82,7 +81,7 @@ export default function LandingPage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
         >
-          {canInstall ? (
+          {canInstall && (
             <motion.div
                 animate={{
                     scale: [1, 1.05, 1],
@@ -98,10 +97,6 @@ export default function LandingPage() {
                 Install App
               </Button>
             </motion.div>
-          ) : (
-             <Button size="lg" className="h-14 w-64 text-lg font-bold" onClick={handleContinue}>
-              Continue to App
-            </Button>
           )}
 
            <Button variant="link" className="text-sm" onClick={handleContinue}>
