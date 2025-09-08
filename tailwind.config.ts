@@ -96,12 +96,22 @@ export default {
           '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
           '50%': { transform: 'translate(-20px, -40px) scale(1.1)' },
         },
+        'flare-3': {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1) rotate(0deg)' },
+          '50%': { transform: 'translate(50px, -10px) scale(1.2) rotate(10deg)' },
+        },
+        'flare-4': {
+            '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+            '50%': { transform: 'translate(-30px, 60px) scale(1.1)' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'flare-1': 'flare-1 8s ease-in-out infinite',
         'flare-2': 'flare-2 10s ease-in-out infinite',
+        'flare-3': 'flare-3 12s ease-in-out infinite',
+        'flare-4': 'flare-4 14s ease-in-out infinite',
       },
     },
   },

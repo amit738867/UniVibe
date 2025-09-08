@@ -13,6 +13,8 @@ export default function AuthenticationPage() {
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
         <div className="absolute left-1/4 top-0 h-72 w-72 animate-flare-1 rounded-full bg-primary/20 opacity-50 blur-3xl filter"></div>
         <div className="absolute right-1/4 bottom-0 h-72 w-72 animate-flare-2 rounded-full bg-accent/20 opacity-50 blur-3xl filter"></div>
+        <div className="absolute left-1/2 top-1/2 h-48 w-48 animate-flare-3 rounded-full bg-primary/10 opacity-40 blur-3xl filter"></div>
+        <div className="absolute right-1/3 top-1/3 h-60 w-60 animate-flare-4 rounded-full bg-accent/10 opacity-40 blur-3xl filter"></div>
       </div>
       <div className="relative z-10 flex min-h-screen items-center justify-center">
         <div className="mx-auto flex w-full max-w-md flex-col items-center justify-center space-y-6 px-4 py-12">
