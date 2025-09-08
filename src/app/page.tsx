@@ -6,19 +6,79 @@ import { Input } from '@/components/ui/input';
 import { UniVibeLogo } from '@/components/icons';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
+import { useAuth } from '@/hooks/use-auth';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 export default function AuthenticationPage() {
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
+  const { toast } = useToast();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isSigningUp, setIsSigningUp] = useState(false);
+  const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleSigningIn(true);
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
+      toast({
+        title: 'Error signing in',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGoogleSigningIn(false);
+    }
+  };
+
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSigningIn(true);
+    try {
+      await signInWithEmail(email, password);
+    } catch (error: any) {
+      toast({
+        title: 'Error signing in',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
+  
+  const handleEmailSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSigningUp(true);
+     try {
+      await signUpWithEmail(email, password);
+    } catch (error: any) {
+      toast({
+        title: 'Error signing up',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSigningUp(false);
+    }
+  }
+
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background">
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
-        <div className="absolute left-1/4 top-0 h-72 w-72 animate-flare-1 rounded-full bg-primary/20 opacity-70 blur-[100px] filter"></div>
-        <div className="absolute right-1/4 bottom-0 h-72 w-72 animate-flare-2 rounded-full bg-accent/20 opacity-70 blur-[100px] filter"></div>
-        <div className="absolute left-1/2 top-1/2 h-48 w-48 animate-flare-3 rounded-full bg-primary/10 opacity-60 blur-[80px] filter"></div>
-        <div className="absolute right-1/3 top-1/3 h-60 w-60 animate-flare-4 rounded-full bg-accent/10 opacity-60 blur-[90px] filter"></div>
+        <div className="absolute left-1/4 top-0 h-72 w-72 animate-flare-1 rounded-full bg-primary/20 opacity-90 blur-[120px] filter"></div>
+        <div className="absolute right-1/4 bottom-0 h-72 w-72 animate-flare-2 rounded-full bg-accent/20 opacity-90 blur-[120px] filter"></div>
+        <div className="absolute left-1/2 top-1/2 h-48 w-48 animate-flare-3 rounded-full bg-primary/10 opacity-80 blur-[100px] filter"></div>
+        <div className="absolute right-1/3 top-1/3 h-60 w-60 animate-flare-4 rounded-full bg-accent/10 opacity-80 blur-[110px] filter"></div>
       </div>
       <div className="relative z-10 flex min-h-screen items-center justify-center">
-        <div className="mx-auto flex w-full max-w-sm flex-col items-center justify-center space-y-6 px-4 py-12">
+        <form className="mx-auto flex w-full max-w-sm flex-col items-center justify-center space-y-6 px-4 py-12">
            <div className="grid gap-4 text-center">
             <UniVibeLogo className="h-16 w-16 text-primary mx-auto" />
             <h1 className="text-5xl font-bold font-headline text-primary">UniVibe</h1>
@@ -27,7 +87,8 @@ export default function AuthenticationPage() {
             </p>
           </div>
           <div className="grid w-full gap-4">
-              <Button className="w-full font-bold h-11 text-base">
+              <Button onClick={handleGoogleSignIn} type="button" className="w-full font-bold h-11 text-base" disabled={isGoogleSigningIn}>
+                 {isGoogleSigningIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Sign in with Google
               </Button>
             <div className="flex items-center gap-4">
@@ -40,21 +101,23 @@ export default function AuthenticationPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder=" "
+                  placeholder="Email"
                   required
                   className="peer h-11 bg-input/80 border-border text-base"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
-                <Label htmlFor="email" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-all peer-placeholder-shown:top-1/2 peer-focus:top-2.5 peer-focus:text-xs peer-placeholder-shown:text-base peer-focus:text-primary">Email</Label>
               </div>
               <div className="relative">
                 <Input 
                   id="password" 
                   type="password" 
                   required 
-                  placeholder=" " 
+                  placeholder="Password" 
                   className="peer h-11 bg-input/80 border-border text-base"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
-                <Label htmlFor="password" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-all peer-placeholder-shown:top-1/2 peer-focus:top-2.5 peer-focus:text-xs peer-placeholder-shown:text-base peer-focus:text-primary">Password</Label>
               </div>
             </div>
             <Link
@@ -63,22 +126,19 @@ export default function AuthenticationPage() {
               >
                 Forgot your password?
               </Link>
-            <div className="grid gap-4">
-               <Link href="/discover" className="w-full">
-                  <Button variant="outline" className="w-full h-11 text-base">
-                    Login
-                  </Button>
-                </Link>
+            <div className="grid grid-cols-2 gap-4">
+               <Button variant="outline" className="w-full h-11 text-base" onClick={handleEmailSignIn} disabled={isSigningIn}>
+                {isSigningIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                 Login
+               </Button>
+               <Button variant="outline" className="w-full h-11 text-base" onClick={handleEmailSignUp} disabled={isSigningUp}>
+                 {isSigningUp ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                 Sign Up
+                </Button>
             </div>
            
           </div>
-           <div className="text-center text-sm">
-              Don&apos;t have an account?{' '}
-              <Link href="#" className="font-semibold text-primary underline-offset-4 hover:underline">
-                Sign up
-              </Link>
-            </div>
-        </div>
+        </form>
       </div>
     </div>
   );

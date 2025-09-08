@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Flame, MessageCircle, User } from 'lucide-react';
+import { Flame, MessageCircle, User, LogOut } from 'lucide-react';
 import { UniVibeLogo } from '@/components/icons';
 import ModeToggle from '@/components/mode-toggle';
 import { cn } from '@/lib/utils';
@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import { useAuth } from '@/hooks/use-auth';
 
 const navLinks = [
   { href: '/discover', label: 'Discover', icon: Flame },
@@ -23,6 +24,7 @@ const navLinks = [
 
 export default function Header() {
   const pathname = usePathname();
+  const { user, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
@@ -59,12 +61,13 @@ export default function Header() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="h-9 w-9 cursor-pointer">
-                <AvatarImage src="https://picsum.photos/seed/user/100/100" alt="My profile" />
-                <AvatarFallback>ME</AvatarFallback>
+                <AvatarImage src={user?.photoURL ?? "https://picsum.photos/seed/user/100/100"} alt="My profile" />
+                <AvatarFallback>{user?.displayName?.charAt(0) ?? 'U'}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{user?.displayName ?? 'My Account'}</DropdownMenuLabel>
+              <DropdownMenuLabel className="font-normal text-xs text-muted-foreground -mt-2">{user?.email}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <Link href="/profile">
                 <DropdownMenuItem>
@@ -73,11 +76,10 @@ export default function Header() {
                 </DropdownMenuItem>
               </Link>
               <DropdownMenuSeparator />
-              <Link href="/">
-                <DropdownMenuItem>
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </Link>
+              <DropdownMenuItem onClick={signOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
