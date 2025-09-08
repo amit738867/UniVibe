@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -24,14 +25,17 @@ export default function AuthenticationPage() {
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
 
   useEffect(() => {
-    // If not logged in and not loading, redirect to the new landing page.
+    // If we are done loading and there's no user, it's a new session.
     if (!loading && !user) {
-      // Check if the app is running in standalone mode (installed PWA)
+      // Check if the app is running in standalone mode (already installed).
+      // If not, redirect to the new landing page.
       const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
       if (!isInStandaloneMode) {
           router.replace('/land');
+          return;
       }
     }
+    // If there IS a user, the useAuth hook will redirect to /discover.
   }, [loading, user, router]);
 
 
@@ -82,6 +86,7 @@ export default function AuthenticationPage() {
     }
   }
 
+  // Show a loader while auth state is being determined.
   const isAnyLoading = loading || isSigningIn || isSigningUp || isGoogleSigningIn;
 
 
