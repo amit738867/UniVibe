@@ -1,18 +1,22 @@
+
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { 
-  getAuth, 
   onAuthStateChanged, 
   User, 
   GoogleAuthProvider, 
   signInWithPopup, 
   signOut as firebaseSignOut,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  signInWithRedirect,
+  getRedirectResult
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
+import { useIsMobile } from './use-mobile';
+import { useToast } from './use-toast';
 
 type AuthContextType = {
   user: User | null;
@@ -29,6 +33,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const isMobile = useIsMobile();
+  const { toast } = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -44,12 +50,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, [router]);
 
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+        setLoading(true);
+        try {
+            await getRedirectResult(auth);
+        } catch (error: any) {
+            console.error("Error getting redirect result", error);
+            toast({
+                title: 'Error signing in',
+                description: error.message,
+                variant: 'destructive',
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+    handleRedirectResult();
+  }, [toast]);
+
+
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
+      if (isMobile) {
+        await signInWithRedirect(auth, provider);
+      } else {
+        await signInWithPopup(auth, provider);
+      }
+    } catch (error: any) {
       console.error("Error signing in with Google", error);
+       toast({
+        title: 'Error signing in',
+        description: error.message,
+        variant: 'destructive',
+      });
     }
   };
 
@@ -71,7 +106,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const value = { user, loading, signInWithGoogle, signOut, signUpWithEmail, signInWithEmail };
 
-  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

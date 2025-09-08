@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -12,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 
 export default function AuthenticationPage() {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail, loading } = useAuth();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,7 +32,7 @@ export default function AuthenticationPage() {
         variant: 'destructive',
       });
     } finally {
-      setIsGoogleSigningIn(false);
+      // Don't set isGoogleSigningIn to false on mobile, as the page will redirect.
     }
   };
 
@@ -67,9 +68,16 @@ export default function AuthenticationPage() {
     }
   }
 
+  const isAnyLoading = loading || isSigningIn || isSigningUp || isGoogleSigningIn;
+
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background">
+       {isAnyLoading && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      )}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
         <div className="absolute left-1/4 top-0 h-72 w-72 animate-flare-1 rounded-full bg-primary/20 opacity-90 blur-[120px] filter"></div>
@@ -78,7 +86,7 @@ export default function AuthenticationPage() {
         <div className="absolute right-1/3 top-1/3 h-60 w-60 animate-flare-4 rounded-full bg-accent/10 opacity-80 blur-[110px] filter"></div>
       </div>
       <div className="relative z-10 flex min-h-screen items-center justify-center">
-        <form className="mx-auto flex w-full max-w-sm flex-col items-center justify-center space-y-6 px-4 py-12">
+        <div className="mx-auto flex w-full max-w-sm flex-col items-center justify-center space-y-6 px-4 py-12">
            <div className="grid gap-4 text-center">
             <UniVibeLogo className="h-16 w-16 text-primary mx-auto" />
             <h1 className="text-5xl font-bold font-headline text-primary">UniVibe</h1>
@@ -96,7 +104,7 @@ export default function AuthenticationPage() {
                 <span className="text-xs text-muted-foreground">OR</span>
                 <Separator className="flex-1" />
             </div>
-            <div className="grid gap-4">
+            <form onSubmit={handleEmailSignIn} className="grid gap-4">
               <div className="relative">
                 <Input
                   id="email"
@@ -119,26 +127,26 @@ export default function AuthenticationPage() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-            </div>
-            <Link
+              <Link
                 href="#"
                 className="ml-auto -mt-2 inline-block text-sm text-primary/80 underline-offset-4 hover:text-primary hover:underline"
               >
                 Forgot your password?
               </Link>
-            <div className="grid grid-cols-2 gap-4">
-               <Button variant="outline" className="w-full h-11 text-base" onClick={handleEmailSignIn} disabled={isSigningIn}>
-                {isSigningIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                 Login
-               </Button>
-               <Button variant="outline" className="w-full h-11 text-base" onClick={handleEmailSignUp} disabled={isSigningUp}>
-                 {isSigningUp ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                 Sign Up
-                </Button>
-            </div>
+              <div className="grid grid-cols-2 gap-4">
+                 <Button variant="outline" className="w-full h-11 text-base" type="submit" disabled={isSigningIn}>
+                  {isSigningIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                   Login
+                 </Button>
+                 <Button variant="outline" className="w-full h-11 text-base" onClick={handleEmailSignUp} disabled={isSigningUp}>
+                   {isSigningUp ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                   Sign Up
+                  </Button>
+              </div>
+            </form>
            
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
