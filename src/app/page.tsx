@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { UniVibeLogo } from '@/components/icons';
+import { Separator } from '@/components/ui/separator';
 
 export default function AuthenticationPage() {
   return (
@@ -25,38 +25,39 @@ export default function AuthenticationPage() {
               Find your spark. Connect with classmates.
             </p>
           </div>
-          <div className="grid w-full gap-6">
+          <div className="grid w-full gap-4">
+              <Button className="w-full font-bold">
+                Sign in with Google
+              </Button>
+            <div className="flex items-center gap-4">
+                <Separator className="flex-1" />
+                <span className="text-xs text-muted-foreground">OR</span>
+                <Separator className="flex-1" />
+            </div>
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@university.edu"
+                placeholder="Email"
                 required
                 className="bg-input/80 border-border"
               />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <Link
+              <Input id="password" type="password" required placeholder="Password" className="bg-input/80 border-border"/>
+              <Link
                   href="#"
                   className="ml-auto inline-block text-sm text-primary/80 underline-offset-4 hover:text-primary hover:underline"
                 >
                   Forgot your password?
                 </Link>
-              </div>
-              <Input id="password" type="password" required  className="bg-input/80 border-border"/>
             </div>
             <div className="grid gap-4">
                <Link href="/discover" className="w-full">
-                  <Button className="w-full font-bold">
+                  <Button variant="outline" className="w-full">
                     Login
                   </Button>
                 </Link>
-                <Button variant="outline" className="w-full">
-                  Sign in with Google
-                </Button>
             </div>
            
           </div>
