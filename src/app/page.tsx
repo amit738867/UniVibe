@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CampusConnectLogo } from '@/components/icons';
+import { UniVibeLogo } from '@/components/icons';
 
 export default function AuthenticationPage() {
   return (
@@ -14,9 +14,9 @@ export default function AuthenticationPage() {
       <div className="absolute inset-0 bg-gradient-to-br from-background to-primary/20" />
       <div className="container relative flex min-h-screen flex-col items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center mb-8">
-          <CampusConnectLogo className="h-12 w-12 text-primary" />
+          <UniVibeLogo className="h-12 w-12 text-primary" />
           <h1 className="text-4xl md:text-5xl font-headline font-bold tracking-tighter text-primary-foreground bg-primary/80 px-4 py-2 rounded-lg shadow-lg">
-            Campus Connect
+            UniVibe
           </h1>
           <p className="max-w-md text-lg text-foreground/80 font-medium">
             Find your spark. Connect with classmates for dating or friendship.

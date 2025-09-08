@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Flame, MessageCircle, User } from 'lucide-react';
-import { CampusConnectLogo } from '@/components/icons';
+import { UniVibeLogo } from '@/components/icons';
 import ModeToggle from '@/components/mode-toggle';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
@@ -29,9 +29,9 @@ export default function Header() {
       <div className="container flex h-16 items-center">
         <div className="flex items-center gap-4">
           <Link href="/discover" className="flex items-center gap-2">
-            <CampusConnectLogo className="h-7 w-7 text-primary" />
+            <UniVibeLogo className="h-7 w-7 text-primary" />
             <span className="hidden font-headline text-xl font-bold text-primary sm:inline-block">
-              Campus Connect
+              UniVibe
             </span>
           </Link>
         </div>
