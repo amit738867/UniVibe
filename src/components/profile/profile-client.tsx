@@ -22,24 +22,24 @@ const userProfile = {
 
 export default function ProfileClient() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
         <div className="relative">
-            <div className="h-48 bg-gradient-to-r from-primary/30 to-accent/30 rounded-lg" />
-            <div className="absolute top-24 left-1/2 -translate-x-1/2 w-full px-4">
+            <div className="h-36 sm:h-48 bg-gradient-to-r from-primary/30 to-accent/30 rounded-lg" />
+            <div className="absolute top-20 sm:top-24 left-1/2 -translate-x-1/2 w-full px-4">
                 <div className="flex flex-col items-center">
-                    <Avatar className="h-32 w-32 border-4 border-background shadow-lg">
+                    <Avatar className="h-28 w-28 sm:h-32 sm:w-32 border-4 border-background shadow-lg">
                         <AvatarImage src="https://picsum.photos/seed/user/200/200" alt={userProfile.name} data-ai-hint="person face" />
                         <AvatarFallback>{userProfile.name.charAt(0)}</AvatarFallback>
                     </Avatar>
-                    <div className="text-center mt-4">
-                        <h1 className="text-3xl font-headline font-bold">{userProfile.name}, {userProfile.age}</h1>
-                        <p className="text-muted-foreground">{userProfile.major}</p>
+                    <div className="text-center mt-3">
+                        <h1 className="text-2xl sm:text-3xl font-headline font-bold">{userProfile.name}, {userProfile.age}</h1>
+                        <p className="text-muted-foreground text-sm sm:text-base">{userProfile.major}</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div className="pt-24 space-y-8">
+        <div className="pt-20 sm:pt-24 space-y-6">
             <PhotoGrid initialPhotos={userProfile.photos} />
             <ProfileForm userProfile={userProfile} />
         </div>
