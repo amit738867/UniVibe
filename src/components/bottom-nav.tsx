@@ -15,24 +15,26 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur-sm md:hidden">
-      <div className="container grid h-16 grid-cols-3 items-center justify-items-center">
-        {navLinks.map((link) => {
-          const isActive = pathname === link.href || (link.href === '/matches' && pathname.startsWith('/matches'));
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                'flex flex-col items-center gap-1 p-2 rounded-lg transition-colors',
-                isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
-              )}
-            >
-              <link.icon className="h-6 w-6" />
-              <span className="text-xs font-medium">{link.label}</span>
-            </Link>
-          );
-        })}
+    <nav className="fixed bottom-0 left-0 right-0 z-50 p-2 md:hidden">
+      <div className="relative mx-auto max-w-sm rounded-full border bg-background/95 backdrop-blur-sm">
+        <div className="container grid h-16 grid-cols-3 items-center justify-items-center px-4">
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href || (link.href === '/matches' && pathname.startsWith('/matches'));
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  'flex flex-col items-center gap-1 p-2 rounded-lg transition-colors w-full',
+                  isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary'
+                )}
+              >
+                <link.icon className="h-6 w-6" />
+                <span className="text-xs font-medium">{link.label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );
