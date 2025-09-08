@@ -7,7 +7,6 @@ const firebaseConfig = {
   storageBucket: "campus-connect-sbzn2.firebasestorage.app",
   apiKey: "AIzaSyCwzSSP-9WoWgwTWcJGzJ5PhK31BdQM74c",
   authDomain: "campus-connect-sbzn2.firebaseapp.com",
-  measurementId: "",
   messagingSenderId: "1001663898745"
 };
 
