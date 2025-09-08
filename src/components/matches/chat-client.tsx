@@ -41,7 +41,7 @@ export default function ChatClient({ user }: ChatClientProps) {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-4rem)]">
+    <div className="flex flex-col h-[calc(100vh-4rem-4rem)] md:h-[calc(100vh-4rem)]">
       <header className="flex items-center gap-2 border-b p-2 sticky top-16 bg-background/95 z-10 md:top-16 md:gap-4 md:p-3">
         <Link href="/matches" className="md:hidden">
           <Button variant="ghost" size="icon">
