@@ -1,18 +1,25 @@
 
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import { UniVibeLogo } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { usePWA } from '@/hooks/use-pwa';
 
 export default function LandingPage() {
   const { canInstall, installPWA } = usePWA();
+  const [isInstalling, setIsInstalling] = useState(false);
 
   const handleInstallClick = async () => {
     if (!canInstall) return;
-    await installPWA();
+    setIsInstalling(true);
+    try {
+        await installPWA();
+    } finally {
+        setIsInstalling(false);
+    }
   };
 
   return (
@@ -73,7 +80,7 @@ export default function LandingPage() {
           transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
         >
             <motion.div
-                animate={canInstall ? {
+                animate={canInstall && !isInstalling ? {
                     scale: [1, 1.05, 1],
                     transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
                 } : {}}
@@ -82,10 +89,19 @@ export default function LandingPage() {
                 size="lg"
                 className="h-14 w-64 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg disabled:bg-accent/50 disabled:cursor-not-allowed"
                 onClick={handleInstallClick}
-                disabled={!canInstall}
+                disabled={!canInstall || isInstalling}
               >
-                <Download className="mr-3 h-6 w-6" />
-                Install App
+                {isInstalling ? (
+                    <>
+                        <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                        Installing...
+                    </>
+                ) : (
+                    <>
+                        <Download className="mr-3 h-6 w-6" />
+                        Install App
+                    </>
+                )}
               </Button>
             </motion.div>
         </motion.div>
