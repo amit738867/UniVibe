@@ -8,6 +8,7 @@ import { UniVibeLogo } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { usePWA } from '@/hooks/use-pwa';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function LandingPage() {
   const { canInstall, installPWA } = usePWA();
@@ -16,13 +17,12 @@ export default function LandingPage() {
   const handleInstallClick = async () => {
     const success = await installPWA();
     if (success) {
+        // Redirect to the login page after successful installation
         router.push('/');
     }
   };
   
-  const handleContinue = () => {
-      router.push('/');
-  }
+ 
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background flex flex-col items-center justify-center p-4">
@@ -99,9 +99,14 @@ export default function LandingPage() {
             </motion.div>
           )}
 
-           <Button variant="link" className="text-sm" onClick={handleContinue}>
-             Continue in browser
-           </Button>
+          {!canInstall && (
+             <Link href="/" passHref>
+                <Button size="lg" className="h-14 w-64 text-lg font-bold">
+                    <AppWindow className="mr-3 h-6 w-6" />
+                    Continue in browser
+                </Button>
+            </Link>
+          )}
         </motion.div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import type {Metadata} from 'next';
 import { Toaster } from "@/components/ui/toaster"
-import './globals.css';
+import '../globals.css';
+import Script from 'next/script';
 
 const APP_NAME = "UniVibe";
 const APP_DESCRIPTION = "Find your spark on campus.";
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body className="font-body antialiased">
           {children}
         <Toaster />
+        <Script src="/sw-reg.js" strategy="afterInteractive" />
       </body>
     </html>
   );
