@@ -3,26 +3,24 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Download, AppWindow } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { UniVibeLogo } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { usePWA } from '@/hooks/use-pwa';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 
 export default function LandingPage() {
   const { canInstall, installPWA } = usePWA();
   const router = useRouter();
 
   const handleInstallClick = async () => {
+    if (!canInstall) return;
     const success = await installPWA();
     if (success) {
-        // Redirect to the login page after successful installation
-        router.push('/');
+      // Redirect to the login page after successful installation
+      router.push('/');
     }
   };
-  
- 
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background flex flex-col items-center justify-center p-4">
@@ -81,32 +79,22 @@ export default function LandingPage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
         >
-          {canInstall && (
             <motion.div
-                animate={{
+                animate={canInstall ? {
                     scale: [1, 1.05, 1],
                     transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
-                }}
+                } : {}}
             >
               <Button
                 size="lg"
-                className="h-14 w-64 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg"
+                className="h-14 w-64 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg disabled:bg-accent/50 disabled:cursor-not-allowed"
                 onClick={handleInstallClick}
+                disabled={!canInstall}
               >
                 <Download className="mr-3 h-6 w-6" />
                 Install App
               </Button>
             </motion.div>
-          )}
-
-          {!canInstall && (
-             <Link href="/" passHref>
-                <Button size="lg" className="h-14 w-64 text-lg font-bold">
-                    <AppWindow className="mr-3 h-6 w-6" />
-                    Continue in browser
-                </Button>
-            </Link>
-          )}
         </motion.div>
       </div>
     </div>
