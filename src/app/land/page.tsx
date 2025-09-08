@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Download } from 'lucide-react';
+import { Download, AppWindow } from 'lucide-react';
 import { UniVibeLogo } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { usePWA } from '@/hooks/use-pwa';
@@ -77,7 +77,7 @@ export default function LandingPage() {
         </motion.p>
 
         <motion.div
-          className="mt-10"
+          className="mt-10 flex flex-col items-center gap-4"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
@@ -99,10 +99,14 @@ export default function LandingPage() {
               </Button>
             </motion.div>
           ) : (
-            <Button size="lg" className="h-14 w-64 text-lg font-bold" onClick={handleContinue}>
+             <Button size="lg" className="h-14 w-64 text-lg font-bold" onClick={handleContinue}>
               Continue to App
             </Button>
           )}
+
+           <Button variant="link" className="text-sm" onClick={handleContinue}>
+             Continue in browser
+           </Button>
         </motion.div>
       </div>
     </div>
