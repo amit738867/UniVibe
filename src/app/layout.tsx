@@ -6,6 +6,9 @@ import { AuthProvider } from '@/hooks/use-auth';
 export const metadata: Metadata = {
   title: 'UniVibe',
   description: 'Find your spark on campus.',
+  icons: {
+    icon: [],
+  }
 };
 
 export default function RootLayout({
