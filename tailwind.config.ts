@@ -88,10 +88,20 @@ export default {
             height: '0',
           },
         },
+        'flare-1': {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+          '50%': { transform: 'translate(20px, 40px) scale(1.1)' },
+        },
+        'flare-2': {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+          '50%': { transform: 'translate(-20px, -40px) scale(1.1)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'flare-1': 'flare-1 8s ease-in-out infinite',
+        'flare-2': 'flare-2 10s ease-in-out infinite',
       },
     },
   },
