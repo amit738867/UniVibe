@@ -20,27 +20,32 @@ export function usePWA() {
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
+      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
+      // Stash the event so it can be triggered later.
       setDeferredPrompt(e as BeforeInstallPromptEvent);
+      // Update UI to notify the user they can install the PWA
       if (isMobile) {
         setCanInstall(true);
       }
+      console.log(`'beforeinstallprompt' event was fired.`);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Also check if the app is already installed
-    window.addEventListener('appinstalled', () => {
-      setDeferredPrompt(null);
+    const handleAppInstalled = () => {
+      // Hide the app-provided install promotion
       setCanInstall(false);
-    });
+      // Clear the deferredPrompt so it can be garbage collected
+      setDeferredPrompt(null);
+      console.log('PWA was installed');
+    };
+
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', () => {
-        setDeferredPrompt(null);
-        setCanInstall(false);
-      });
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, [isMobile]);
 
@@ -48,15 +53,19 @@ export function usePWA() {
     if (!deferredPrompt) {
       return;
     }
+    // Show the install prompt
     await deferredPrompt.prompt();
+    // Wait for the user to respond to the prompt
     const { outcome } = await deferredPrompt.userChoice;
+    // We've used the prompt, and can't use it again, throw it away
+    setDeferredPrompt(null);
+    setCanInstall(false);
+    
     if (outcome === 'accepted') {
       console.log('User accepted the A2HS prompt');
     } else {
       console.log('User dismissed the A2HS prompt');
     }
-    setDeferredPrompt(null);
-    setCanInstall(false);
   };
 
   return { canInstall, installPWA };
