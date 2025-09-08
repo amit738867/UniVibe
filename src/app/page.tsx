@@ -8,18 +8,32 @@ import { UniVibeLogo } from '@/components/icons';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/use-auth';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function AuthenticationPage() {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, loading } = useAuth();
+  const { user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
+
+  useEffect(() => {
+    // If not logged in and not loading, redirect to the new landing page.
+    if (!loading && !user) {
+      // Check if the app is running in standalone mode (installed PWA)
+      const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
+      if (!isInStandaloneMode) {
+          router.replace('/land');
+      }
+    }
+  }, [loading, user, router]);
+
 
   const handleGoogleSignIn = async () => {
     setIsGoogleSigningIn(true);
