@@ -31,7 +31,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [isProcessingRedirect, setIsProcessingRedirect] = useState(true);
   const router = useRouter();
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -45,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             title: `Welcome, ${result.user.displayName}!`,
             description: "You've successfully signed in.",
           });
-          // No need to setLoading(false) here, onAuthStateChanged will handle it.
+          // Redirect will be handled by the onAuthStateChanged listener
         }
       } catch (error: any) {
         console.error("Error processing redirect result", error);
@@ -54,54 +55,59 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           description: error.message,
           variant: 'destructive',
         });
+      } finally {
+        setIsProcessingRedirect(false);
       }
     };
 
     handleRedirectResult();
+  }, [toast]);
 
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false);
+      setAuthLoading(false);
       if (currentUser) {
         router.push('/discover');
       }
     });
 
     return () => unsubscribe();
-  }, [router, toast]);
+  }, [router]);
 
+  const loading = authLoading || isProcessingRedirect;
 
   const signInWithGoogle = async () => {
-    setLoading(true);
     const provider = new GoogleAuthProvider();
     try {
       if (isMobile) {
         await signInWithRedirect(auth, provider);
       } else {
-        await signInWithPopup(auth, provider);
-        // onAuthStateChanged will handle the redirect for popup
+        const result = await signInWithPopup(auth, provider);
+        toast({
+            title: `Welcome, ${result.user.displayName}!`,
+            description: "You've successfully signed in.",
+        });
+        // onAuthStateChanged will handle the redirect
       }
     } catch (error: any) {
       console.error("Error signing in with Google", error);
-       if (error.code !== 'auth/popup-closed-by-user') {
+       if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
          toast({
           title: 'Error signing in',
           description: error.message,
           variant: 'destructive',
         });
        }
-       setLoading(false);
     }
   };
 
   const signUpWithEmail = async (email: string, pass: string) => {
-    setLoading(true);
-    return createUserWithEmailAndPassword(auth, email, pass).finally(() => setLoading(false));
+    return createUserWithEmailAndPassword(auth, email, pass);
   }
 
   const signInWithEmail = async (email: string, pass: string) => {
-    setLoading(true);
-    return signInWithEmailAndPassword(auth, email, pass).finally(() => setLoading(false));
+    return signInWithEmailAndPassword(auth, email, pass);
   }
 
   const signOut = async () => {
@@ -110,6 +116,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       router.push('/');
     } catch (error) {
       console.error("Error signing out", error);
+       toast({
+          title: 'Error signing out',
+          description: (error as Error).message,
+          variant: 'destructive',
+        });
     }
   };
 
