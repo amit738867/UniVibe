@@ -1,84 +1,77 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UniVibeLogo } from '@/components/icons';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function AuthenticationPage() {
   return (
-    <div className="relative min-h-screen w-full">
-      <div className="absolute inset-0 bg-gradient-to-br from-background to-primary/20" />
-      <div className="container relative flex min-h-screen flex-col items-center justify-center">
-        <div className="flex flex-col items-center gap-4 text-center mb-8">
-          <UniVibeLogo className="h-12 w-12 text-primary" />
-          <h1 className="text-4xl md:text-5xl font-headline font-bold tracking-tighter text-primary-foreground bg-primary/80 px-4 py-2 rounded-lg shadow-lg">
-            UniVibe
-          </h1>
-          <p className="max-w-md text-lg text-foreground/80 font-medium">
-            Find your spark. Connect with classmates for dating or friendship.
-          </p>
+    <div className="w-full min-h-screen lg:grid lg:grid-cols-2">
+      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto grid w-[350px] gap-8">
+          <div className="grid gap-4 text-center">
+            <UniVibeLogo className="h-12 w-12 text-primary mx-auto" />
+            <h1 className="text-3xl font-bold font-headline text-primary">UniVibe</h1>
+            <p className="text-balance text-muted-foreground">
+              Find your spark. Connect with classmates.
+            </p>
+          </div>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@university.edu"
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <div className="flex items-center">
+                    <Label htmlFor="password">Password</Label>
+                    <Link
+                      href="#"
+                      className="ml-auto inline-block text-sm underline"
+                    >
+                      Forgot your password?
+                    </Link>
+                  </div>
+                  <Input id="password" type="password" required />
+                </div>
+                <Link href="/discover" className="w-full">
+                  <Button className="w-full font-bold">
+                    Login
+                  </Button>
+                </Link>
+                <Button variant="outline" className="w-full">
+                  Login with Google
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          <div className="text-center text-sm">
+            Don&apos;t have an account?{' '}
+            <Link href="#" className="underline">
+              Sign up
+            </Link>
+          </div>
         </div>
-
-        <Tabs defaultValue="signin" className="w-full max-w-sm">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
-          </TabsList>
-          <TabsContent value="signin">
-            <Card className="shadow-2xl">
-              <CardHeader>
-                <CardTitle className="font-headline text-2xl">Welcome Back!</CardTitle>
-                <CardDescription>Enter your credentials to access your account.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email-signin">College Email</Label>
-                  <Input id="email-signin" type="email" placeholder="you@university.edu" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password-signin">Password</Label>
-                  <Input id="password-signin" type="password" required />
-                </div>
-                <Link href="/discover">
-                  <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold">
-                    Sign In
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="signup">
-            <Card className="shadow-2xl">
-              <CardHeader>
-                <CardTitle className="font-headline text-2xl">Join the Community</CardTitle>
-                <CardDescription>Create an account with your college email.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name-signup">Full Name</Label>
-                  <Input id="name-signup" placeholder="Alex Doe" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email-signup">College Email</Label>
-                  <Input id="email-signup" type="email" placeholder="you@university.edu" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password-signup">Password</Label>
-                  <Input id="password-signup" type="password" required />
-                </div>
-                <Link href="/discover">
-                  <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold">
-                    Create Account
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+      </div>
+      <div className="hidden bg-muted lg:block">
+        <Image
+          src="https://picsum.photos/1200/1800"
+          alt="Image"
+          width="1200"
+          height="1800"
+          className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          data-ai-hint="people social fun"
+        />
       </div>
     </div>
   );
