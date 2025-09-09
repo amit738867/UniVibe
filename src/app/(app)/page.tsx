@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -25,7 +26,7 @@ export default function AuthenticationPage() {
 
   useEffect(() => {
     // This effect runs on the client after hydration
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !loading && !user) {
        // Check if the app is running in standalone mode (already installed).
       // If not, redirect to the new landing page.
       const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
@@ -34,7 +35,7 @@ export default function AuthenticationPage() {
       }
     }
      // If a user is logged in, useAuth will handle redirecting to /discover.
-  }, [router]);
+  }, [router, loading, user]);
 
 
   const handleGoogleSignIn = async () => {

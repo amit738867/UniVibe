@@ -1,52 +1,9 @@
-
 // This is the service worker file.
+// It's required for a PWA to be installable.
 
-const CACHE_NAME = 'univibe-cache-v1';
-const urlsToCache = [
-  '/',
-  '/land',
-  '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
-  // Add other important assets here
-];
-
-// Install the service worker and cache important assets
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('Opened cache');
-      return cache.addAll(urlsToCache);
-    })
-  );
-});
-
-// Serve cached content when offline
+// A simple fetch event handler is required to make the app installable.
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Cache hit - return response
-      if (response) {
-        return response;
-      }
-      // Not in cache - fetch from network
-      return fetch(event.request);
-    })
-  );
-});
-
-// Clean up old caches
-self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
+  // We are not adding any specific caching logic here for now.
+  // This basic handler is enough to meet the PWA criteria.
+  event.respondWith(fetch(event.request));
 });

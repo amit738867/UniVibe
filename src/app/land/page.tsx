@@ -12,22 +12,18 @@ import { useRouter } from 'next/navigation';
 export default function LandingPage() {
   const { canInstall, isIos, installPWA } = usePWA();
   const [isInstalling, setIsInstalling] = useState(false);
-  const router = useRouter();
 
   const handleInstallClick = async () => {
     if (!canInstall) return;
     setIsInstalling(true);
     try {
-      const installed = await installPWA();
-      if (!installed) {
-        // If the user dismissed the prompt, we reset the state
-        // so they can try again.
-        setIsInstalling(true);
-      }
-      // If installation is successful, the `appinstalled` event in the hook
-      // will handle redirecting the user.
+      await installPWA();
+      // If installation is successful, the `appinstalled` event will redirect.
+      // If dismissed, installPWA now sets canInstall to false, so the button will be disabled.
+      // We reset our local installing state regardless.
     } catch (e) {
       console.error("Installation failed", e);
+    } finally {
       setIsInstalling(false);
     }
   };
@@ -44,32 +40,26 @@ export default function LandingPage() {
       );
     }
 
-    if (canInstall) {
-       return (
-         <Button
-            size="lg"
-            className="h-14 w-64 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg disabled:bg-accent/50 disabled:cursor-not-allowed"
-            onClick={handleInstallClick}
-            disabled={isInstalling}
-          >
-            {isInstalling ? (
-              <>
-                <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-                Installing...
-              </>
-            ) : (
-              <>
-                <Download className="mr-3 h-6 w-6" />
-                Install App
-              </>
-            )}
-          </Button>
-       );
-    }
-
-    // If not iOS and not installable, show nothing or a message.
-    // An empty div is fine for now to avoid confusion.
-    return <div className="h-[5rem]" />;
+    return (
+      <Button
+        size="lg"
+        className="h-14 w-64 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg disabled:bg-accent/50 disabled:cursor-not-allowed"
+        onClick={handleInstallClick}
+        disabled={!canInstall || isInstalling}
+      >
+        {isInstalling ? (
+          <>
+            <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+            Installing...
+          </>
+        ) : (
+          <>
+            <Download className="mr-3 h-6 w-6" />
+            Install App
+          </>
+        )}
+      </Button>
+    );
   }
 
   return (
