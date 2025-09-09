@@ -2,11 +2,14 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Sparkles, Users, Compass } from 'lucide-react';
+import { Sparkles, Users, Compass, Download, Loader2 } from 'lucide-react';
 import { UniVibeLogo } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { usePWA } from '@/hooks/use-pwa';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 const features = [
     {
@@ -28,6 +31,33 @@ const features = [
 
 export default function LandingPage() {
   const router = useRouter();
+  const { canInstall, isIos, installPWA } = usePWA();
+  const [isInstalling, setIsInstalling] = useState(false);
+  const { toast } = useToast();
+
+  const handleInstallClick = async () => {
+    if (isIos) {
+       toast({
+         title: 'To install, tap the Share button and then "Add to Home Screen".',
+       });
+       return;
+    }
+
+    if (!canInstall) {
+        router.push('/login');
+        return;
+    }
+    
+    setIsInstalling(true);
+    const installed = await installPWA();
+    if (!installed) {
+        // If installation was cancelled, go to login as a fallback.
+        router.push('/login');
+    }
+     // On successful installation, the `appinstalled` event will handle the redirect.
+    setIsInstalling(false);
+  };
+
 
   return (
     <div className="relative min-h-screen w-full overflow-y-auto bg-background text-foreground">
@@ -75,9 +105,15 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 className="h-14 px-10 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg"
-                onClick={() => router.push('/login')}
+                onClick={handleInstallClick}
+                disabled={isInstalling}
               >
-                Get Started
+                 {isInstalling ? (
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                 ) : (
+                    <Download className="mr-2 h-5 w-5" />
+                 )}
+                 {canInstall || isIos ? 'Install App' : 'Get Started'}
               </Button>
             </motion.div>
         </section>

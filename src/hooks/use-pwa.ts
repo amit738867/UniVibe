@@ -30,7 +30,7 @@ export function usePWA() {
       // Hide the install button
       setCanInstall(false);
       // Redirect to the main part of the app after successful installation.
-      router.push('/');
+      router.push('/discover');
     };
 
     // This handler runs when the browser determines the app is installable.
