@@ -13,31 +13,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 
 export default function AuthenticationPage() {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, loading } = useAuth();
+  const { signInWithEmail, signUpWithEmail, loading } = useAuth();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
-  const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
-
-  const handleGoogleSignIn = async () => {
-    setIsGoogleSigningIn(true);
-    try {
-      await signInWithGoogle();
-      // The redirect is handled by the auth hook, so we don't need to set loading to false here for the success case.
-    } catch (error: any) {
-      if (error.code !== 'auth/popup-closed-by-user') {
-          toast({
-            title: 'Error signing in',
-            description: error.message,
-            variant: 'destructive',
-          });
-      }
-      // This will reset the button's loading state if the user closes the popup
-      setIsGoogleSigningIn(false);
-    }
-  };
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,12 +52,12 @@ export default function AuthenticationPage() {
     }
   }
 
-  const isAnyLoading = loading || isSigningIn || isSigningUp || isGoogleSigningIn;
+  const isAnyLoading = loading || isSigningIn || isSigningUp;
 
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background">
-       {isAnyLoading && !isGoogleSigningIn && ( // Show backdrop only for non-Google sign-in loading
+       {isAnyLoading && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
         </div>
@@ -98,15 +79,6 @@ export default function AuthenticationPage() {
             </p>
           </div>
           <div className="grid w-full gap-4">
-              <Button onClick={handleGoogleSignIn} type="button" className="w-full font-bold h-11 text-base" disabled={isAnyLoading}>
-                 {isGoogleSigningIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Sign in with Google
-              </Button>
-            <div className="flex items-center gap-4">
-                <Separator className="flex-1" />
-                <span className="text-xs text-muted-foreground">OR</span>
-                <Separator className="flex-1" />
-            </div>
             <form onSubmit={handleEmailSignIn} className="grid gap-4">
               <div className="relative">
                 <Input
