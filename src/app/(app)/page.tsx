@@ -22,13 +22,18 @@ export default function AuthenticationPage() {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Redirect if user is already logged in
   useEffect(() => {
-    if (!loading && user) {
+    if (isMounted && !loading && user) {
       router.push('/discover');
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, isMounted]);
 
 
   const handleGoogleSignIn = async () => {
@@ -81,6 +86,11 @@ export default function AuthenticationPage() {
     } finally {
       setIsSigningUp(false);
     }
+  }
+
+  // Defer rendering until mounted on the client to avoid hydration errors
+  if (!isMounted) {
+    return null;
   }
 
   // Show a loader while hydrating, checking auth state, or if user is already logged in and redirecting.
