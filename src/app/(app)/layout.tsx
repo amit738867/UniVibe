@@ -75,8 +75,10 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
     const previousPath = sessionStorage.getItem('previousPath');
     if (previousPath) {
         const previousIndex = navLinks.findIndex(link => previousPath.startsWith(link.href));
-        const newDirection = currentIndex > previousIndex ? 1 : -1;
-        setDirection(newDirection);
+        if (previousIndex !== -1 && currentIndex !== -1) {
+          const newDirection = currentIndex > previousIndex ? 1 : -1;
+          setDirection(newDirection);
+        }
     }
     sessionStorage.setItem('previousPath', pathname);
   }, [pathname, currentIndex]);
