@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const handleRedirectResult = async () => {
+    const processRedirectResult = async () => {
       try {
         const result = await getRedirectResult(auth);
         if (result) {
@@ -46,26 +46,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             title: `Welcome, ${result.user.displayName}!`,
             description: "You've successfully signed in.",
           });
-          // Redirect will be handled by the onAuthStateChanged listener
-        } else {
-          // This handles the case where the user lands on the page without a redirect.
-          setIsProcessingRedirect(false);
+          // The onAuthStateChanged listener below will handle the redirect to /discover
         }
       } catch (error: any) {
-        console.error("Error processing redirect result", error);
-        toast({
-          title: 'Sign-in Error',
-          description: error.message,
-          variant: 'destructive',
-        });
+        if (error.code !== 'auth/popup-closed-by-user') {
+          toast({
+            title: 'Sign-in Error',
+            description: error.message,
+            variant: 'destructive',
+          });
+        }
+      } finally {
         setIsProcessingRedirect(false);
       }
     };
-
-    handleRedirectResult();
+    processRedirectResult();
   }, [toast]);
 
   useEffect(() => {
+    // Don't run the auth state listener until the redirect has been processed
+    if (isProcessingRedirect) return;
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setAuthLoading(false);
@@ -75,13 +76,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, [isProcessingRedirect, router]);
 
   const loading = authLoading || isProcessingRedirect;
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ auth_domain: auth.config.authDomain });
     try {
       if (isMobile) {
         await signInWithRedirect(auth, provider);
@@ -94,15 +94,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // onAuthStateChanged will handle the redirect
       }
     } catch (error: any) {
-       if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-        // Don't toast this error, but re-throw it so the UI can update.
-        throw error;
-       }
-       toast({
-        title: 'Error signing in',
-        description: error.message,
-        variant: 'destructive',
-      });
+       // Re-throw the error so the calling component can handle it
+       throw error;
     }
   };
 
@@ -119,7 +112,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await firebaseSignOut(auth);
       router.push('/');
     } catch (error) {
-      console.error("Error signing out", error);
        toast({
           title: 'Error signing out',
           description: (error as Error).message,

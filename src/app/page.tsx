@@ -25,14 +25,17 @@ export default function AuthenticationPage() {
     setIsGoogleSigningIn(true);
     try {
       await signInWithGoogle();
+      // The redirect is handled by the auth hook, so we don't need to set loading to false here for the success case.
     } catch (error: any) {
-      toast({
-        title: 'Error signing in',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } finally {
-      // Don't set isGoogleSigningIn to false on mobile, as the page will redirect.
+      if (error.code !== 'auth/popup-closed-by-user') {
+          toast({
+            title: 'Error signing in',
+            description: error.message,
+            variant: 'destructive',
+          });
+      }
+      // This will reset the button's loading state if the user closes the popup
+      setIsGoogleSigningIn(false);
     }
   };
 
@@ -73,7 +76,7 @@ export default function AuthenticationPage() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background">
-       {isAnyLoading && (
+       {isAnyLoading && !isGoogleSigningIn && ( // Show backdrop only for non-Google sign-in loading
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
         </div>
