@@ -83,9 +83,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({
-        'auth_domain': process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    });
 
     try {
       if (isMobile) {
@@ -101,14 +98,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // onAuthStateChanged will handle the redirect
       }
     } catch (error: any) {
-      console.error("Error signing in with Google", error);
-       if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-         toast({
-          title: 'Error signing in',
-          description: error.message,
-          variant: 'destructive',
-        });
+       // Gracefully handle the case where the user closes the popup.
+       if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+         console.log('Sign-in popup closed by user.');
+         return;
        }
+      
+      console.error("Error signing in with Google", error);
+      toast({
+        title: 'Error signing in',
+        description: error.message,
+        variant: 'destructive',
+      });
     }
   };
 
