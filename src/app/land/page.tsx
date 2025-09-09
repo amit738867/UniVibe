@@ -1,71 +1,26 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Loader2, Share } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import { UniVibeLogo } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { usePWA } from '@/hooks/use-pwa';
-import { useRouter } from 'next/navigation';
 
 export default function LandingPage() {
-  const { canInstall, isIos, installPWA } = usePWA();
+  const { canInstall, installPWA } = usePWA();
   const [isInstalling, setIsInstalling] = useState(false);
 
   const handleInstallClick = async () => {
     if (!canInstall) return;
-  
     setIsInstalling(true);
     try {
-      const installed = await installPWA();
-      if (!installed) {
-        // If the user dismissed the prompt, reset the installing state
-        // so they can try again. The `usePWA` hook will keep `canInstall` true.
+        await installPWA();
+    } finally {
         setIsInstalling(false);
-      }
-      // If installation is successful, the `appinstalled` event will trigger a redirect.
-      // If we get here, it means the user dismissed it.
-    } catch (e) {
-      console.error("Installation failed", e);
-      // Also reset on error
-      setIsInstalling(false);
     }
   };
-
-  const renderInstallUI = () => {
-    if (isIos) {
-      return (
-         <div className="text-center bg-secondary/50 p-4 rounded-lg border">
-            <h3 className="font-bold">Install on your iPhone</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Tap the <Share className="inline-block h-4 w-4 mx-1" /> Share button in Safari and then tap &quot;Add to Home Screen&quot;.
-            </p>
-         </div>
-      );
-    }
-
-    return (
-      <Button
-        size="lg"
-        className="h-14 w-64 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg disabled:bg-accent/50 disabled:cursor-not-allowed"
-        onClick={handleInstallClick}
-        disabled={!canInstall || isInstalling}
-      >
-        {isInstalling ? (
-          <>
-            <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-            Installing...
-          </>
-        ) : (
-          <>
-            <Download className="mr-3 h-6 w-6" />
-            Install App
-          </>
-        )}
-      </Button>
-    );
-  }
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background flex flex-col items-center justify-center p-4">
@@ -73,18 +28,20 @@ export default function LandingPage() {
       <div className="absolute inset-0 z-0">
         <motion.div
           className="absolute left-1/4 top-0 h-72 w-72 rounded-full bg-primary/20 opacity-90 blur-[120px] filter"
+          initial={{ opacity: 0, scale: 0.5 }}
           animate={{
             opacity: 1,
-            scale: [1, 1.1, 1],
-            transition: { duration: 10, repeat: Infinity, ease: 'easeInOut' },
+            scale: 1,
+            transition: { duration: 1.5, ease: 'easeOut' },
           }}
         />
         <motion.div
           className="absolute right-1/4 bottom-0 h-72 w-72 rounded-full bg-accent/20 opacity-90 blur-[120px] filter"
-           animate={{
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{
             opacity: 1,
-            scale: [1, 1.1, 1],
-            transition: { duration: 10, delay: 3, repeat: Infinity, ease: 'easeInOut' },
+            scale: 1,
+            transition: { duration: 1.5, delay: 0.5, ease: 'easeOut' },
           }}
         />
       </div>
@@ -113,16 +70,40 @@ export default function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}
         >
-          Install the app to your home screen for the best, full-screen experience.
+          The best experience is on our app. Install it to your home screen for quick access and a full-screen view.
         </motion.p>
 
         <motion.div
-          className="mt-10 flex flex-col items-center gap-4 min-h-[5rem]"
+          className="mt-10 flex flex-col items-center gap-4"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
         >
-            {renderInstallUI()}
+            <motion.div
+                animate={canInstall && !isInstalling ? {
+                    scale: [1, 1.05, 1],
+                    transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
+                } : {}}
+            >
+              <Button
+                size="lg"
+                className="h-14 w-64 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg disabled:bg-accent/50 disabled:cursor-not-allowed"
+                onClick={handleInstallClick}
+                disabled={!canInstall || isInstalling}
+              >
+                {isInstalling ? (
+                    <>
+                        <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                        Installing...
+                    </>
+                ) : (
+                    <>
+                        <Download className="mr-3 h-6 w-6" />
+                        Install App
+                    </>
+                )}
+              </Button>
+            </motion.div>
         </motion.div>
       </div>
     </div>
