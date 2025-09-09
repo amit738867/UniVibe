@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Loader2, Share } from 'lucide-react';
 import { UniVibeLogo } from '@/components/icons';
@@ -15,15 +15,20 @@ export default function LandingPage() {
 
   const handleInstallClick = async () => {
     if (!canInstall) return;
+  
     setIsInstalling(true);
     try {
-      await installPWA();
-      // If installation is successful, the `appinstalled` event will redirect.
-      // If dismissed, installPWA now sets canInstall to false, so the button will be disabled.
-      // We reset our local installing state regardless.
+      const installed = await installPWA();
+      if (!installed) {
+        // If the user dismissed the prompt, reset the installing state
+        // so they can try again. The `usePWA` hook will keep `canInstall` true.
+        setIsInstalling(false);
+      }
+      // If installation is successful, the `appinstalled` event will trigger a redirect.
+      // If we get here, it means the user dismissed it.
     } catch (e) {
       console.error("Installation failed", e);
-    } finally {
+      // Also reset on error
       setIsInstalling(false);
     }
   };

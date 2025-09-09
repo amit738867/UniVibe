@@ -25,8 +25,10 @@ export function usePWA() {
     // This handler runs when the app is successfully installed.
     const handleAppInstalled = () => {
       console.log('PWA was installed');
-      setCanInstall(false);
+      // Clear the deferredPrompt so it doesn't get used again
       window.deferredPrompt = null;
+      // Hide the install button
+      setCanInstall(false);
       // Redirect to the main part of the app after successful installation.
       router.push('/');
     };
@@ -71,16 +73,13 @@ export function usePWA() {
     
     if (outcome === 'accepted') {
       console.log('User accepted the install prompt');
-      window.deferredPrompt = null;
-      setCanInstall(false);
-      // The 'appinstalled' event will handle the redirect.
+      // The 'appinstalled' event will be fired and handled by the listener.
       return true;
     } else {
       console.log('User dismissed the install prompt');
-      // The prompt is no longer available after being dismissed.
-      // We'll have to wait for the browser to fire the event again.
-      window.deferredPrompt = null;
-      setCanInstall(false);
+      // The prompt can be used again, so we don't clear it.
+      // The user might want to install later.
+      setCanInstall(true); // Ensure the button remains installable
       return false;
     }
   }, []);
