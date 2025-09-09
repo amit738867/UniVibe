@@ -1,18 +1,25 @@
+
+// This script runs in the browser and registers the service worker.
+
+// Register the service worker
 if ('serviceWorker' in navigator) {
-  // We want to capture the prompt event and defer it.
-  window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent the mini-infobar from appearing on mobile
-    e.preventDefault();
-    // Stash the event so it can be triggered later.
-    window.deferredPrompt = e;
-    console.log('`beforeinstallprompt` event was captured.');
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(
+      (registration) => {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      },
+      (err) => {
+        console.log('ServiceWorker registration failed: ', err);
+      }
+    );
   });
-  
-  navigator.serviceWorker.register('/sw.js')
-    .then((registration) => {
-      console.log('Service Worker registered with scope:', registration.scope);
-    })
-    .catch((error) => {
-      console.error('Service Worker registration failed:', error);
-    });
 }
+
+// Capture the beforeinstallprompt event
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent the mini-infobar from appearing on mobile
+  e.preventDefault();
+  // Stash the event so it can be triggered later.
+  window.deferredPrompt = e;
+  console.log('`beforeinstallprompt` event was captured.');
+});

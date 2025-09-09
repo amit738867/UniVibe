@@ -36,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <>
-        {children}
+      {children}
       <Toaster />
       <Script src="/sw-reg.js" strategy="beforeInteractive" />
     </>

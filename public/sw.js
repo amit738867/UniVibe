@@ -1,3 +1,6 @@
+
+// This is the service worker file.
+
 const CACHE_NAME = 'univibe-cache-v1';
 const urlsToCache = [
   '/',
@@ -5,33 +8,34 @@ const urlsToCache = [
   '/manifest.json',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
+  // Add other important assets here
 ];
 
+// Install the service worker and cache important assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('Opened cache');
+      return cache.addAll(urlsToCache);
+    })
   );
 });
 
-// This fetch handler is required for the app to be installable.
+// Serve cached content when offline
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
+    caches.match(event.request).then((response) => {
+      // Cache hit - return response
+      if (response) {
+        return response;
       }
-    )
+      // Not in cache - fetch from network
+      return fetch(event.request);
+    })
   );
 });
 
+// Clean up old caches
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
