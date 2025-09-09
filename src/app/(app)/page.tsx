@@ -9,34 +9,18 @@ import { UniVibeLogo } from '@/components/icons';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/use-auth';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 export default function AuthenticationPage() {
   const { user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
   const { toast } = useToast();
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
-
-  useEffect(() => {
-    // This effect runs on the client after hydration
-    if (typeof window !== 'undefined' && !loading && !user) {
-       // Check if the app is running in standalone mode (already installed).
-      // If not, redirect to the new landing page.
-      const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
-      if (!isInStandaloneMode && window.location.pathname !== '/land') {
-          router.replace('/land');
-      }
-    }
-     // If a user is logged in, useAuth will handle redirecting to /discover.
-  }, [router, loading, user]);
-
 
   const handleGoogleSignIn = async () => {
     setIsGoogleSigningIn(true);
