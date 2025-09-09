@@ -19,8 +19,6 @@ export async function verifyPhotoAction(
   console.log('Verifying photo for user...');
   try {
     const result = await aiPhotoVerification(input);
-    // Add a delay to simulate network latency
-    await new Promise(resolve => setTimeout(resolve, 1500));
     return result;
   } catch (error) {
     console.error('Error in verifyPhotoAction:', error);
@@ -40,8 +38,6 @@ export async function suggestMatchesAction(
   console.log('Suggesting matches for user...');
   try {
     const result = await suggestMatches(input);
-     // Add a delay to simulate network latency
-    await new Promise(resolve => setTimeout(resolve, 2000));
     return result;
   } catch (error) {
     console.error('Error in suggestMatchesAction:', error);
