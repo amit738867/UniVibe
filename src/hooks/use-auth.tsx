@@ -71,6 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(currentUser);
       setAuthLoading(false);
       if (currentUser) {
+        // Only redirect if not already on an app page
         if (!['/discover', '/matches', '/profile'].some(path => window.location.pathname.startsWith(path))) {
           router.push('/discover');
         }

@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  rewrites() {
+  async rewrites() {
     return [
       {
         source: '/__/firebase/init.json',
