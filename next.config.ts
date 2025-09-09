@@ -24,6 +24,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/__/firebase/init.json',
+        destination: '/__firebase/init.json',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
