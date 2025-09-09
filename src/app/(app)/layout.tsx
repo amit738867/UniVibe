@@ -56,13 +56,13 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
     if (currentIndex === -1) return;
 
     if (offset > swipeThreshold || velocity > 500) {
-      // Swiped right
+      // Swiped right (to a previous tab)
       if (currentIndex > 0) {
         const prevPage = navLinks[currentIndex - 1].href;
         navigate(prevPage);
       }
     } else if (offset < -swipeThreshold || velocity < -500) {
-      // Swiped left
+      // Swiped left (to a next tab)
       if (currentIndex < navLinks.length - 1) {
         const nextPage = navLinks[currentIndex + 1].href;
         navigate(nextPage);
