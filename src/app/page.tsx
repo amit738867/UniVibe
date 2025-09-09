@@ -129,11 +129,11 @@ export default function AuthenticationPage() {
                 Forgot your password?
               </Link>
               <div className="grid grid-cols-2 gap-4">
-                 <Button variant="outline" className="w-full h-11 text-base" type="submit" disabled={isAnyloading}>
+                 <Button variant="outline" className="w-full h-11 text-base" type="submit" disabled={isAnyLoading}>
                   {isSigningIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                    Login
                  </Button>
-                 <Button variant="outline" className="w-full h-11 text-base" onClick={handleEmailSignUp} disabled={isAnyLoading}>
+                 <Button variant="outline" className="w-full h-11 text-base" type="button" onClick={handleEmailSignUp} disabled={isAnyLoading}>
                    {isSigningUp ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                    Sign Up
                   </Button>
