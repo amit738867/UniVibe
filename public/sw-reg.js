@@ -1,23 +1,22 @@
-// This script is responsible for two things:
-// 1. Registering the service worker.
-// 2. Capturing the 'beforeinstallprompt' event.
+// This script is loaded in the <head> of the document
+// and is responsible for capturing the beforeinstallprompt event.
+// It should be loaded with `strategy="beforeInteractive"` in Next.js Script component.
+
+// We listen for the event, prevent the default mini-infobar from appearing on mobile,
+// and then save the event so it can be triggered later.
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  window.deferredPrompt = e;
+  console.log(`'beforeinstallprompt' event was captured.`);
+});
 
 // Register the service worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then((registration) => {
-      console.log('Service Worker registered with scope:', registration.scope);
-    })
-    .catch((error) => {
-      console.error('Service Worker registration failed:', error);
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, err => {
+            console.log('ServiceWorker registration failed: ', err);
+        });
     });
 }
-
-// Listen for the 'beforeinstallprompt' event
-window.addEventListener('beforeinstallprompt', (e) => {
-  // Prevent the browser's default install prompt
-  e.preventDefault();
-  // Stash the event so it can be triggered later from our UI.
-  window.deferredPrompt = e;
-  console.log('`beforeinstallprompt` event was captured.');
-});

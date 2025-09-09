@@ -1,8 +1,17 @@
-// A basic service worker must have a fetch event handler to be considered
-// installable by the browser. This is a minimal implementation.
+// A basic service worker to make the app installable.
+// It includes a fetch handler to satisfy the PWA criteria.
 
+self.addEventListener('install', (event) => {
+  console.log('Service worker installing...');
+  // You can pre-cache assets here if needed.
+});
+
+self.addEventListener('activate', (event) => {
+  console.log('Service worker activating...');
+});
+
+// A fetch handler is required for a PWA to be installable.
+// This basic handler just passes the request through to the network.
 self.addEventListener('fetch', (event) => {
-  // This is a "pass-through" fetch handler. It doesn't do any caching,
-  // but it's enough to make the PWA installable.
   event.respondWith(fetch(event.request));
 });

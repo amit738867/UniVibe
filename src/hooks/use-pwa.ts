@@ -13,10 +13,15 @@ declare global {
 }
 
 export function usePWA() {
-  const [canInstall, setCanInstall] = useState(false);
   const router = useRouter();
-
+  const [canInstall, setCanInstall] = useState(false);
+  const [isIos, setIsIos] = useState(false);
+  
   useEffect(() => {
+    // Detect iOS
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    setIsIos(isIOSDevice);
+    
     // This function runs when the app is successfully installed.
     const handleAppInstalled = () => {
       console.log('PWA was installed');
@@ -29,28 +34,33 @@ export function usePWA() {
 
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // Check if the prompt was already captured by the global script
-    if (window.deferredPrompt) {
-      console.log('Install prompt was already captured.');
-      setCanInstall(true);
-    } else {
-      // If not, listen for it to be captured.
-      // This covers cases where the component mounts before the event fires.
-      const handleBeforeInstallPrompt = (e: Event) => {
+    // This handler will be called if the 'beforeinstallprompt' event has already fired.
+    const checkExistingPrompt = () => {
+        if (window.deferredPrompt) {
+            console.log('Install prompt was already available.');
+            setCanInstall(true);
+        }
+    };
+    
+    // This handler listens for the event in case it fires after the component mounts.
+    const handleBeforeInstallPrompt = (e: Event) => {
         // The event is stored globally by sw-reg.js, we just need to update state
         console.log("'beforeinstallprompt' event was fired and captured.");
         setCanInstall(true);
-      };
-      window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      
-      // Cleanup listener if component unmounts before event fires
-      return () => {
-        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      };
-    }
+    };
+    
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Check immediately in case the event has already fired.
+    checkExistingPrompt();
+
+    // The event might fire a little later, so we check again after a short delay.
+    const timeoutId = setTimeout(checkExistingPrompt, 1000);
 
     return () => {
       window.removeEventListener('appinstalled', handleAppInstalled);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      clearTimeout(timeoutId);
     };
   }, [router]);
 
@@ -76,12 +86,10 @@ export function usePWA() {
       return true;
     } else {
       console.log('User dismissed the install prompt');
-      // If dismissed, the browser may not fire the event again,
-      // so we should hide the button for this session.
       setCanInstall(false);
       return false;
     }
   }, []);
 
-  return { canInstall, installPWA };
+  return { canInstall, isIos, installPWA };
 }
