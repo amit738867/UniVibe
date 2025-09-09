@@ -32,6 +32,11 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
     const currentIndex = navLinks.findIndex((link) => pathname.startsWith(link.href));
     const newIndex = navLinks.findIndex((link) => newPath.startsWith(link.href));
     
+    if (currentIndex === -1 || newIndex === -1) {
+      router.push(newPath);
+      return;
+    }
+    
     if (newIndex > currentIndex) {
       setDirection(1);
     } else {
@@ -47,6 +52,8 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
     const swipeThreshold = 50;
 
     const currentIndex = navLinks.findIndex((link) => pathname.startsWith(link.href));
+
+    if (currentIndex === -1) return;
 
     if (offset > swipeThreshold || velocity > 500) {
       // Swiped right
@@ -69,10 +76,12 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
       opacity: 0,
     }),
     center: {
+      zIndex: 1,
       x: 0,
       opacity: 1,
     },
     exit: (direction: number) => ({
+      zIndex: 0,
       x: direction < 0 ? '100%' : '-100%',
       opacity: 0,
     }),
