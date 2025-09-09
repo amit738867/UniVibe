@@ -33,18 +33,18 @@ export default function AuthenticationPage() {
     setIsGoogleSigningIn(true);
     try {
       await signInWithGoogle();
-      // On success, the onAuthStateChanged listener in useAuth will handle the redirect.
-      // The loading spinner can remain active until the redirect happens.
     } catch (error: any) {
-      // Only show a toast for actual errors, not for user-cancellation.
-      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+       if (error.code === 'auth/popup-closed-by-user') {
+        // User closed the popup, so we just reset the UI
+        console.log("Sign-in popup closed by user.");
+      } else {
         toast({
-          title: 'Error signing in',
-          description: error.message,
-          variant: 'destructive',
+            title: 'Error signing in',
+            description: error.message,
+            variant: 'destructive',
         });
       }
-      // Always stop the loading spinner, whether it was an error or a cancellation.
+    } finally {
       setIsGoogleSigningIn(false);
     }
   };

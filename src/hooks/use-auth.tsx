@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -84,6 +83,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    // This is the key fix: Explicitly set the authDomain to prevent redirect errors on mobile.
+    provider.setCustomParameters({
+        'auth_domain': process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    });
 
     try {
       if (isMobile) {
@@ -99,9 +102,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // onAuthStateChanged will handle the redirect
       }
     } catch (error: any) {
-      // Re-throw the error so the calling component can handle it,
-      // particularly the case where the user closes the popup.
-      throw error;
+      console.error("Error signing in with Google", error);
+       if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+         toast({
+          title: 'Error signing in',
+          description: error.message,
+          variant: 'destructive',
+        });
+       }
     }
   };
 

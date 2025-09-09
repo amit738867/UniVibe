@@ -1,3 +1,4 @@
+import { AuthProvider } from '@/hooks/use-auth';
 
 export default function AppRootLayout({
   children,
@@ -5,8 +6,8 @@ export default function AppRootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
+    <AuthProvider>
       {children}
-    </>
+    </AuthProvider>
   );
 }
