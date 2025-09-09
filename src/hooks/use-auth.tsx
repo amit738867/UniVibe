@@ -42,12 +42,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const result = await getRedirectResult(auth);
         if (result) {
+          // User successfully signed in via redirect.
+          // onAuthStateChanged will handle the user state update and redirect.
           toast({
             title: `Welcome, ${result.user.displayName}!`,
             description: "You've successfully signed in.",
           });
         }
       } catch (error: any) {
+        // This catches errors from the redirect result, such as the user closing the popup.
         if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
           console.error("Error during getRedirectResult:", error);
           toast({
@@ -57,9 +60,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           });
         }
       } finally {
+        // This is crucial. We're done processing the redirect.
         setIsProcessingRedirect(false);
       }
     };
+
     processRedirectResult();
   }, [toast]);
 
@@ -68,6 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(currentUser);
       setAuthLoading(false);
       if (currentUser) {
+        // This is the single source of truth for redirecting on successful login.
         router.push('/discover');
       }
     });
@@ -75,6 +81,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, [router]);
 
+  // The app is in a loading state if the initial auth state hasn't been determined
+  // OR if we are actively processing a sign-in redirect.
   const loading = authLoading || isProcessingRedirect;
 
   const signInWithGoogle = async () => {
@@ -84,9 +92,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     if (isMobile) {
+      // Don't await this, the page will redirect away.
       await signInWithRedirect(auth, provider);
     } else {
-      await signInWithPopup(auth, provider);
+      // Use popup for desktop.
+      try {
+        await signInWithPopup(auth, provider);
+        // onAuthStateChanged will handle the redirect.
+      } catch (error: any) {
+        // Re-throw specific, actionable errors for the UI to handle.
+        if (error.code === 'auth/popup-closed-by-user') {
+          throw error;
+        }
+        // Log other unexpected errors.
+        console.error("Error during signInWithPopup:", error);
+        toast({
+          title: 'Error signing in',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
     }
   };
 
@@ -101,6 +126,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
+      // Redirect to login page after sign-out.
       router.push('/');
     } catch (error) {
       console.error("Error signing out", error);

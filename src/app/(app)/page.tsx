@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from 'next/link';
@@ -25,6 +24,12 @@ export default function AuthenticationPage() {
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
 
  
+  // Redirect if user is already logged in and auth is not loading
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/discover');
+    }
+  }, [user, loading, router]);
 
 
   const handleGoogleSignIn = async () => {
@@ -79,13 +84,22 @@ export default function AuthenticationPage() {
     }
   }
 
-  // Show a loader while auth state is being determined.
-  const isAnyLoading = loading || isSigningIn || isSigningUp || isGoogleSigningIn;
+  // Show a loader while auth state is being determined (initial load or after redirect).
+  if (loading) {
+     return (
+        <div className="relative min-h-screen w-full flex items-center justify-center bg-background">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      );
+  }
+
+  // Show a local loader for specific sign-in actions
+  const isActionLoading = isSigningIn || isSigningUp || isGoogleSigningIn;
 
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background">
-       {isAnyLoading && (
+       {isActionLoading && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
         </div>
