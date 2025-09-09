@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { ReactNode } from 'react';
@@ -20,33 +19,34 @@ export default function ProtectedRoutesLayout({ children }: ProtectedRoutesLayou
   const pathname = usePathname();
 
   useEffect(() => {
-    // If auth is not loading and there's no user, redirect to login.
     if (!loading && !user) {
       router.push('/');
     }
-  }, [user, loading, router, pathname]);
-  
+  }, [user, loading, router]);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
+      <main className="flex-1 relative">
         <AnimatePresence mode="wait">
-            <motion.main
-              key={pathname}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="flex-1 pb-24 md:pb-0"
-            >
-               {loading || !user ? (
-                 <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
-                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                 </div>
-               ) : (
-                 children
-               )}
-            </motion.main>
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.1, ease: 'easeInOut' }}
+            className="h-full"
+          >
+            {loading || !user ? (
+              <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              children
+            )}
+          </motion.div>
         </AnimatePresence>
+      </main>
       <BottomNav />
     </div>
   );
