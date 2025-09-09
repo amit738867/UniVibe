@@ -6,7 +6,7 @@ import Header from '@/components/header';
 import BottomNav from '@/components/bottom-nav';
 import { useAuth } from '@/hooks/use-auth';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 
@@ -32,9 +32,7 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
     }
   }, [user, loading, router]);
 
-  const
- 
-currentIndex = navLinks.findIndex((link) => pathname.startsWith(link.href));
+  const currentIndex = navLinks.findIndex((link) => pathname.startsWith(link.href));
 
   const handleDragEnd = (e: MouseEvent | TouchEvent | PointerEvent, { offset, velocity }: PanInfo) => {
     const swipe = swipePower(offset.x, velocity.x);
@@ -74,9 +72,12 @@ currentIndex = navLinks.findIndex((link) => pathname.startsWith(link.href));
   const [direction, setDirection] = useState(0);
 
   useEffect(() => {
-    const previousIndex = navLinks.findIndex(link => sessionStorage.getItem('previousPath')?.startsWith(link.href));
-    const newDirection = currentIndex > previousIndex ? 1 : -1;
-    setDirection(newDirection);
+    const previousPath = sessionStorage.getItem('previousPath');
+    if (previousPath) {
+        const previousIndex = navLinks.findIndex(link => previousPath.startsWith(link.href));
+        const newDirection = currentIndex > previousIndex ? 1 : -1;
+        setDirection(newDirection);
+    }
     sessionStorage.setItem('previousPath', pathname);
   }, [pathname, currentIndex]);
 
