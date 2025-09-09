@@ -34,9 +34,9 @@ export default function ProtectedRoutesLayout({ children }: ProtectedRoutesLayou
         <AnimatePresence mode="wait">
             <motion.main
               key={pathname}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
               className="flex-1 pb-24 md:pb-0"
             >
