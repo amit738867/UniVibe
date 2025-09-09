@@ -4,10 +4,10 @@ import type { ReactNode } from 'react';
 import Header from '@/components/header';
 import BottomNav from '@/components/bottom-nav';
 import { useAuth } from '@/hooks/use-auth';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-
+import { AnimatePresence, motion } from 'framer-motion';
 
 type AppLayoutProps = {
   children: ReactNode;
@@ -16,6 +16,7 @@ type AppLayoutProps = {
 export default function AppLayout({ children }: AppLayoutProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -34,7 +35,18 @@ export default function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1 pb-24 md:pb-0">{children}</main>
+       <AnimatePresence mode="wait">
+          <motion.main
+            key={pathname}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            className="flex-1 pb-24 md:pb-0"
+          >
+           {children}
+          </motion.main>
+        </AnimatePresence>
       <BottomNav />
     </div>
   );

@@ -1,3 +1,5 @@
+'use client';
+
 import AppLayout from '@/components/app-layout';
 import ProfileClient from '@/components/profile/profile-client';
 

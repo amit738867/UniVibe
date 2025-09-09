@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { mockMatches } from '@/lib/data';
 import AppLayout from '@/components/app-layout';
