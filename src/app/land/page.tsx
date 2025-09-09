@@ -17,7 +17,12 @@ export default function LandingPage() {
     setIsInstalling(true);
     try {
         await installPWA();
+        // If the installation is dismissed, we should reset the installing state.
+        // If accepted, the 'appinstalled' event will fire and redirect.
+    } catch(e) {
+        console.error("Installation failed", e);
     } finally {
+        // Reset button state if user dismisses prompt
         setIsInstalling(false);
     }
   };
@@ -104,6 +109,11 @@ export default function LandingPage() {
                 )}
               </Button>
             </motion.div>
+             {!canInstall && !isInstalling && (
+                <p className="text-sm text-muted-foreground mt-2 max-w-xs">
+                    Installation is not available. You may have already installed the app, or your browser may not be supported.
+                </p>
+             )}
         </motion.div>
       </div>
     </div>

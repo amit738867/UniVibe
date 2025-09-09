@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -19,10 +19,10 @@ export function usePWA() {
   const router = useRouter();
 
   useEffect(() => {
+    // This function handles the browser's install prompt event.
     const handleBeforeInstallPrompt = (e: Event) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
-      // Stash the event so it can be triggered later.
+      // Store the event so it can be triggered later.
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       // Update UI to notify the user they can install the PWA
       setCanInstall(true);
@@ -31,23 +31,31 @@ export function usePWA() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
+    // This function runs when the app is successfully installed.
     const handleAppInstalled = () => {
       // Hide the app-provided install promotion
       setCanInstall(false);
-      // Clear the deferredPrompt so it can be garbage collected
       setDeferredPrompt(null);
       console.log('PWA was installed');
+      // Redirect to login after successful installation
+      router.push('/');
     };
 
     window.addEventListener('appinstalled', handleAppInstalled);
 
+    // Check if the app is already installed (running in standalone mode)
+    if (typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches) {
+        console.log('App is already in standalone mode.');
+        setCanInstall(false);
+    }
+    
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, []);
+  }, [router]);
 
-  const installPWA = async (): Promise<boolean> => {
+  const installPWA = useCallback(async (): Promise<boolean> => {
     if (!deferredPrompt) {
       console.log('Install prompt not available');
       return false;
@@ -65,14 +73,13 @@ export function usePWA() {
     
     if (outcome === 'accepted') {
       console.log('User accepted the A2HS prompt');
-      // Redirect to the login page after successful installation
-      router.push('/');
+      // The 'appinstalled' event listener will handle the redirect.
       return true;
     } else {
       console.log('User dismissed the A2HS prompt');
       return false;
     }
-  };
+  }, [deferredPrompt]);
 
   return { canInstall, installPWA };
 }
