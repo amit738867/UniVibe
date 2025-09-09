@@ -69,7 +69,6 @@ export function usePWA() {
     
     // We've used the prompt, and can't use it again, clear it
     setDeferredPrompt(null);
-    setCanInstall(false);
     
     if (outcome === 'accepted') {
       console.log('User accepted the A2HS prompt');
@@ -77,6 +76,9 @@ export function usePWA() {
       return true;
     } else {
       console.log('User dismissed the A2HS prompt');
+      // If dismissed, we should allow the prompt to be shown again later.
+      // The browser will automatically re-fire 'beforeinstallprompt' when it's ready.
+      setCanInstall(true); 
       return false;
     }
   }, [deferredPrompt]);

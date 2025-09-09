@@ -17,12 +17,10 @@ export default function LandingPage() {
     setIsInstalling(true);
     try {
         await installPWA();
-        // If the installation is dismissed, we should reset the installing state.
-        // If accepted, the 'appinstalled' event will fire and redirect.
     } catch(e) {
         console.error("Installation failed", e);
     } finally {
-        // Reset button state if user dismisses prompt
+        // Reset button state if user dismisses prompt or if installation fails
         setIsInstalling(false);
     }
   };
@@ -84,36 +82,29 @@ export default function LandingPage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
         >
-            <motion.div
-                animate={canInstall && !isInstalling ? {
-                    scale: [1, 1.05, 1],
-                    transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
-                } : {}}
-            >
-              <Button
-                size="lg"
-                className="h-14 w-64 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg disabled:bg-accent/50 disabled:cursor-not-allowed"
-                onClick={handleInstallClick}
-                disabled={!canInstall || isInstalling}
-              >
-                {isInstalling ? (
-                    <>
-                        <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-                        Installing...
-                    </>
-                ) : (
-                    <>
-                        <Download className="mr-3 h-6 w-6" />
-                        Install App
-                    </>
-                )}
-              </Button>
-            </motion.div>
-             {!canInstall && !isInstalling && (
-                <p className="text-sm text-muted-foreground mt-2 max-w-xs">
-                    Installation is not available. You may have already installed the app, or your browser may not be supported.
-                </p>
-             )}
+          <Button
+            size="lg"
+            className="h-14 w-64 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg disabled:bg-accent/50 disabled:cursor-not-allowed"
+            onClick={handleInstallClick}
+            disabled={!canInstall || isInstalling}
+          >
+            {isInstalling ? (
+                <>
+                    <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                    Installing...
+                </>
+            ) : (
+                <>
+                    <Download className="mr-3 h-6 w-6" />
+                    Install App
+                </>
+            )}
+          </Button>
+           {!canInstall && !isInstalling && (
+              <p className="text-sm text-muted-foreground mt-2 max-w-xs">
+                  To install, use the "Add to Home Screen" option in your browser's menu.
+              </p>
+           )}
         </motion.div>
       </div>
     </div>
