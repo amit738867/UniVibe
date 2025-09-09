@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/hooks/use-auth';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import Header from '@/components/header';
 import BottomNav from '@/components/bottom-nav';
@@ -20,12 +20,26 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [direction, setDirection] = useState(1);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/');
     }
   }, [user, loading, router]);
+  
+  const navigate = (newPath: string) => {
+    const currentIndex = navLinks.findIndex((link) => pathname.startsWith(link.href));
+    const newIndex = navLinks.findIndex((link) => newPath.startsWith(link.href));
+    
+    if (newIndex > currentIndex) {
+      setDirection(1);
+    } else {
+      setDirection(-1);
+    }
+    
+    router.push(newPath);
+  }
 
   const handleDragEnd = (event: any, info: any) => {
     const offset = info.offset.x;
@@ -38,13 +52,13 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
       // Swiped right
       if (currentIndex > 0) {
         const prevPage = navLinks[currentIndex - 1].href;
-        router.push(prevPage);
+        navigate(prevPage);
       }
     } else if (offset < -swipeThreshold || velocity < -500) {
       // Swiped left
       if (currentIndex < navLinks.length - 1) {
         const nextPage = navLinks[currentIndex + 1].href;
-        router.push(nextPage);
+        navigate(nextPage);
       }
     }
   };
@@ -75,12 +89,12 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
         ) : (
           <AnimatePresence
             initial={false}
-            custom={1}
+            custom={direction}
             mode="wait"
           >
             <motion.main
               key={pathname}
-              custom={1}
+              custom={direction}
               variants={variants}
               initial="enter"
               animate="center"
