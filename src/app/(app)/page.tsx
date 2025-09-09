@@ -22,19 +22,13 @@ export default function AuthenticationPage() {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  // This ensures that the component is mounted on the client before we check auth state.
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
 
   // Redirect if user is already logged in
   useEffect(() => {
-    if (isHydrated && !loading && user) {
+    if (!loading && user) {
       router.push('/discover');
     }
-  }, [user, loading, router, isHydrated]);
+  }, [user, loading, router]);
 
 
   const handleGoogleSignIn = async () => {
@@ -90,23 +84,13 @@ export default function AuthenticationPage() {
   }
 
   // Show a loader while hydrating, checking auth state, or if user is already logged in and redirecting.
-  if (!isHydrated || loading) {
+  if (loading || user) {
      return (
         <div className="relative min-h-screen w-full flex items-center justify-center bg-background">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
         </div>
       );
   }
-  
-  // Don't render the login form if the user is already authenticated (and about to be redirected)
-  if(user) {
-      return (
-        <div className="relative min-h-screen w-full flex items-center justify-center bg-background">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        </div>
-      );
-  }
-
 
   // Show a local loader for specific sign-in actions
   const isActionLoading = isSigningIn || isSigningUp || isGoogleSigningIn;
