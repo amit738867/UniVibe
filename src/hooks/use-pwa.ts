@@ -78,15 +78,17 @@ export function usePWA() {
     const { outcome } = await promptEvent.userChoice;
     
     // We can only use the prompt once, so clear it.
-    window.deferredPrompt = null;
-    
+    // Important: Only clear the prompt if the user accepted.
+    // If they dismissed it, we want the prompt to be available on next page load.
     if (outcome === 'accepted') {
       console.log('User accepted the install prompt');
+      window.deferredPrompt = null;
+      setCanInstall(false); // Hide the button immediately
       // The 'appinstalled' event listener will handle the rest.
       return true;
     } else {
       console.log('User dismissed the install prompt');
-      setCanInstall(false);
+      // The prompt remains available. We don't change canInstall state here.
       return false;
     }
   }, []);

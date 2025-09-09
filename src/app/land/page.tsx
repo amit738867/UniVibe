@@ -20,17 +20,19 @@ export default function LandingPage() {
     try {
       const installed = await installPWA();
       if (!installed) {
-        // If the user dismissed the prompt, we reset the state.
+        // If the user dismissed the prompt, we reset the state
+        // so they can try again.
         setIsInstalling(false);
       }
-      // If installation is successful, the `appinstalled` event will handle the redirect.
+      // If installation is successful, the `appinstalled` event in the hook
+      // will handle redirecting the user.
     } catch (e) {
       console.error("Installation failed", e);
       setIsInstalling(false);
     }
   };
 
-  const renderInstallButton = () => {
+  const renderInstallUI = () => {
     if (isIos) {
       return (
          <div className="text-center bg-secondary/50 p-4 rounded-lg border">
@@ -65,15 +67,9 @@ export default function LandingPage() {
        );
     }
 
-    return (
-        <Button
-            size="lg"
-            className="h-14 w-64 text-lg font-bold"
-            onClick={() => router.push('/')}
-        >
-            Continue to App
-        </Button>
-    )
+    // If not iOS and not installable, show nothing or a message.
+    // An empty div is fine for now to avoid confusion.
+    return <div className="h-[5rem]" />;
   }
 
   return (
@@ -131,7 +127,7 @@ export default function LandingPage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
         >
-            {renderInstallButton()}
+            {renderInstallUI()}
         </motion.div>
       </div>
     </div>
