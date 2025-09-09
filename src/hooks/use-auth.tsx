@@ -101,7 +101,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error: any) {
       // Re-throw the error so the calling component can handle it,
       // particularly the case where the user closes the popup.
-      console.error("Error signing in with Google", error);
       throw error;
     }
   };
