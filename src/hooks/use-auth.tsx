@@ -86,12 +86,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    // This is a critical fix for mobile redirect flows. It explicitly tells
-    // Firebase which domain to use for its authentication helper page.
-    provider.setCustomParameters({
-        'auth_domain': process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    });
-
     try {
       if (isMobile) {
         // On mobile, we use signInWithRedirect. The result is handled by getRedirectResult.
