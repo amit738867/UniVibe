@@ -3,13 +3,14 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, Share } from 'lucide-react';
 import { UniVibeLogo } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import { usePWA } from '@/hooks/use-pwa';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function LandingPage() {
-  const { canInstall, installPWA } = usePWA();
+  const { canInstall, isIos, installPWA } = usePWA();
   const [isInstalling, setIsInstalling] = useState(false);
 
   const handleInstallClick = async () => {
@@ -17,7 +18,11 @@ export default function LandingPage() {
     setIsInstalling(true);
     try {
         await installPWA();
-    } finally {
+        // The `appinstalled` event handler in the hook will redirect.
+        // We leave the installing state as is, to prevent flicker.
+    } catch (error) {
+        console.error("Installation failed", error);
+        // If there's an error, allow the user to try again.
         setIsInstalling(false);
     }
   };
@@ -46,7 +51,7 @@ export default function LandingPage() {
         />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center text-center">
+      <div className="relative z-10 flex flex-col items-center text-center max-w-md">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -65,7 +70,7 @@ export default function LandingPage() {
         </motion.h1>
 
         <motion.p
-          className="mt-3 max-w-md text-lg text-muted-foreground"
+          className="mt-3 text-lg text-muted-foreground"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}
@@ -74,36 +79,46 @@ export default function LandingPage() {
         </motion.p>
 
         <motion.div
-          className="mt-10 flex flex-col items-center gap-4"
+          className="mt-10 w-full flex flex-col items-center gap-4"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
         >
-            <motion.div
-                animate={canInstall && !isInstalling ? {
-                    scale: [1, 1.05, 1],
-                    transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
-                } : {}}
-            >
-              <Button
-                size="lg"
-                className="h-14 w-64 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg disabled:bg-accent/50 disabled:cursor-not-allowed"
-                onClick={handleInstallClick}
-                disabled={!canInstall || isInstalling}
-              >
-                {isInstalling ? (
-                    <>
-                        <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-                        Installing...
-                    </>
-                ) : (
-                    <>
-                        <Download className="mr-3 h-6 w-6" />
-                        Install App
-                    </>
-                )}
-              </Button>
-            </motion.div>
+            {isIos ? (
+                 <Alert>
+                    <Share className="h-4 w-4" />
+                    <AlertTitle>To install the app</AlertTitle>
+                    <AlertDescription>
+                        Tap the Share icon in Safari and then "Add to Home Screen".
+                    </AlertDescription>
+                </Alert>
+            ) : (
+                <motion.div
+                    animate={canInstall && !isInstalling ? {
+                        scale: [1, 1.05, 1],
+                        transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
+                    } : {}}
+                >
+                  <Button
+                    size="lg"
+                    className="h-14 w-64 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg disabled:bg-accent/50 disabled:cursor-not-allowed"
+                    onClick={handleInstallClick}
+                    disabled={!canInstall || isInstalling}
+                  >
+                    {isInstalling ? (
+                        <>
+                            <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                            Installing...
+                        </>
+                    ) : (
+                        <>
+                            <Download className="mr-3 h-6 w-6" />
+                            Install App
+                        </>
+                    )}
+                  </Button>
+                </motion.div>
+            )}
         </motion.div>
       </div>
     </div>

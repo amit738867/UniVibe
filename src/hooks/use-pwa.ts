@@ -71,15 +71,17 @@ export function usePWA() {
     // Wait for the user to respond to the prompt.
     const { outcome } = await promptEvent.userChoice;
     
+    // We handle the outcome in the 'appinstalled' event listener.
+    // We can clear the prompt now.
+    window.deferredPrompt = null;
+
     if (outcome === 'accepted') {
       console.log('User accepted the install prompt');
-      // The 'appinstalled' event will be fired and handled by the listener.
+      setCanInstall(false);
       return true;
     } else {
       console.log('User dismissed the install prompt');
-      // The prompt can be used again, so we don't clear it.
-      // The user might want to install later.
-      setCanInstall(true); // Ensure the button remains installable
+      setCanInstall(false);
       return false;
     }
   }, []);
