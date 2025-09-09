@@ -7,7 +7,8 @@ import {
   User, 
   signOut as firebaseSignOut,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  updateProfile
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
@@ -18,6 +19,7 @@ type AuthContextType = {
   loading: boolean;
   signUpWithEmail: (email: string, pass: string) => Promise<any>;
   signInWithEmail: (email: string, pass: string) => Promise<any>;
+  updateUserProfile: (data: { displayName?: string, photoURL?: string }) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -33,13 +35,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
-      if (currentUser) {
-        router.push('/discover');
-      }
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, []);
 
   const signUpWithEmail = async (email: string, pass: string) => {
     return createUserWithEmailAndPassword(auth, email, pass);
@@ -47,6 +46,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithEmail = async (email: string, pass: string) => {
     return signInWithEmailAndPassword(auth, email, pass);
+  }
+
+  const updateUserProfile = async (data: { displayName?: string, photoURL?: string }) => {
+    if (!auth.currentUser) throw new Error("Not authenticated");
+    return updateProfile(auth.currentUser, data);
   }
 
   const signOut = async () => {
@@ -62,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const value = { user, loading, signOut, signUpWithEmail, signInWithEmail };
+  const value = { user, loading, signOut, signUpWithEmail, signInWithEmail, updateUserProfile };
 
   return (
     <AuthContext.Provider value={value}>

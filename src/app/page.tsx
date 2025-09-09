@@ -5,16 +5,16 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UniVibeLogo } from '@/components/icons';
-import { Separator } from '@/components/ui/separator';
-import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/use-auth';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function AuthenticationPage() {
-  const { signInWithEmail, signUpWithEmail, loading } = useAuth();
+  const { signInWithEmail, signUpWithEmail, loading, user } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -25,6 +25,7 @@ export default function AuthenticationPage() {
     setIsSigningIn(true);
     try {
       await signInWithEmail(email, password);
+      router.push('/discover');
     } catch (error: any) {
       toast({
         title: 'Error signing in',
@@ -41,6 +42,7 @@ export default function AuthenticationPage() {
     setIsSigningUp(true);
      try {
       await signUpWithEmail(email, password);
+      router.push('/discover');
     } catch (error: any) {
       toast({
         title: 'Error signing up',
@@ -54,6 +56,22 @@ export default function AuthenticationPage() {
 
   const isAnyLoading = loading || isSigningIn || isSigningUp;
 
+  if (loading) {
+    return (
+       <div className="relative min-h-screen w-full flex items-center justify-center bg-background">
+         <Loader2 className="h-10 w-10 animate-spin text-primary" />
+       </div>
+     );
+  }
+
+  if (user) {
+    router.push('/discover');
+    return (
+      <div className="relative min-h-screen w-full flex items-center justify-center bg-background">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background">
