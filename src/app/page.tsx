@@ -8,51 +8,31 @@ import { UniVibeLogo } from '@/components/icons';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/use-auth';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 export default function AuthenticationPage() {
-  const { user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail, loading } = useAuth();
   const { toast } = useToast();
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Redirect if user is already logged in
-  useEffect(() => {
-    if (isMounted && !loading && user) {
-      router.push('/discover');
-    }
-  }, [user, loading, router, isMounted]);
-
 
   const handleGoogleSignIn = async () => {
     setIsGoogleSigningIn(true);
     try {
       await signInWithGoogle();
-      // On desktop, the onAuthStateChanged listener will handle the redirect.
-      // On mobile, the page will redirect away and back, so we don't need to set loading to false.
     } catch (error: any) {
-      // This handles the 'popup-closed-by-user' case.
-      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-        toast({
-          title: 'Error signing in',
-          description: error.message,
-          variant: 'destructive',
-        });
-      }
-      // If the popup is closed or another error occurs, reset the loading state
-      setIsGoogleSigningIn(false);
+      toast({
+        title: 'Error signing in',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      // Don't set isGoogleSigningIn to false on mobile, as the page will redirect.
     }
   };
 
@@ -88,27 +68,12 @@ export default function AuthenticationPage() {
     }
   }
 
-  // Defer rendering until mounted on the client to avoid hydration errors
-  if (!isMounted) {
-    return null;
-  }
-
-  // Show a loader while hydrating, checking auth state, or if user is already logged in and redirecting.
-  if (loading || user) {
-     return (
-        <div className="relative min-h-screen w-full flex items-center justify-center bg-background">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        </div>
-      );
-  }
-
-  // Show a local loader for specific sign-in actions
-  const isActionLoading = isSigningIn || isSigningUp || isGoogleSigningIn;
+  const isAnyLoading = loading || isSigningIn || isSigningUp || isGoogleSigningIn;
 
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background">
-       {isActionLoading && (
+       {isAnyLoading && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
         </div>

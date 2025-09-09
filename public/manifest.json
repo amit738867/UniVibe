@@ -1,11 +1,11 @@
 {
   "name": "UniVibe",
   "short_name": "UniVibe",
-  "description": "Find your spark on campus.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#1c1c1c",
+  "theme_color": "#000000",
+  "description": "Find your spark on campus.",
   "icons": [
     {
       "src": "/icon-192x192.png",
