@@ -83,6 +83,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    // This is the key fix: Explicitly set the authDomain to prevent redirect errors on mobile.
+    provider.setCustomParameters({
+        'auth_domain': process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    });
+
     try {
       if (isMobile) {
         // This will navigate away and then back, the result is handled by getRedirectResult
