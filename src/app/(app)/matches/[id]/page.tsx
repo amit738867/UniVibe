@@ -1,3 +1,5 @@
+'use client';
+
 import ChatClient from '@/components/matches/chat-client';
 import { mockMatches } from '@/lib/data';
 import { notFound } from 'next/navigation';
