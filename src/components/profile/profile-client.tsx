@@ -6,7 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/use-auth";
 import PhotoGrid from "./photo-grid";
 import ProfileForm from "./profile-form";
-import { motion } from "framer-motion";
 
 const initialPhotos = [
   { id: 1, url: "https://picsum.photos/seed/user/400/400", isVerified: true },
@@ -37,12 +36,7 @@ export default function ProfileClient() {
 
   return (
     <div className="space-y-6">
-        <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="relative"
-        >
+        <div className="relative">
             <div className="h-36 sm:h-48 bg-gradient-to-r from-primary/30 to-accent/30 rounded-lg" />
             <div className="absolute top-20 sm:top-24 left-1/2 -translate-x-1/2 w-full px-4">
                 <div className="flex flex-col items-center">
@@ -56,17 +50,12 @@ export default function ProfileClient() {
                     </div>
                 </div>
             </div>
-        </motion.div>
+        </div>
 
-        <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="pt-20 sm:pt-24 space-y-6"
-        >
+        <div className="pt-20 sm:pt-24 space-y-6">
             <PhotoGrid initialPhotos={photos.map(p => p.id === 1 ? {...p, url: user?.photoURL ?? p.url} : p)} />
             <ProfileForm userProfile={profileData} onProfileUpdate={handleProfileUpdate} />
-        </motion.div>
+        </div>
     </div>
   );
 }
