@@ -22,7 +22,7 @@ export default function LandingPage() {
       if (!installed) {
         // If the user dismissed the prompt, we reset the state
         // so they can try again.
-        setIsInstalling(false);
+        setIsInstalling(true);
       }
       // If installation is successful, the `appinstalled` event in the hook
       // will handle redirecting the user.

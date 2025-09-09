@@ -35,19 +35,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet" />
-        <meta name="theme-color" content="#18181b" />
-      </head>
-      <body className="font-body antialiased">
-          {children}
-        <Toaster />
-        <Script src="/sw-reg.js" strategy="beforeInteractive" />
-      </body>
-    </html>
+    <>
+        {children}
+      <Toaster />
+      <Script src="/sw-reg.js" strategy="beforeInteractive" />
+    </>
   );
 }
