@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ReactNode } from 'react';
@@ -19,19 +20,14 @@ export default function ProtectedRoutesLayout({ children }: ProtectedRoutesLayou
   const pathname = usePathname();
 
   useEffect(() => {
+    // If auth is not loading and there's no user, redirect to login.
     if (!loading && !user) {
       router.push('/');
     }
   }, [user, loading, router]);
 
-  if (loading || !user) {
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-background">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-    )
-  }
-
+  // Render the layout shell immediately.
+  // The loading check will only affect the main content area.
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -44,7 +40,13 @@ export default function ProtectedRoutesLayout({ children }: ProtectedRoutesLayou
             transition={{ duration: 0.2, ease: 'easeInOut' }}
             className="flex-1 pb-24 md:pb-0"
           >
-           {children}
+           {loading || !user ? (
+             <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
+               <Loader2 className="h-8 w-8 animate-spin text-primary" />
+             </div>
+           ) : (
+             children
+           )}
           </motion.main>
         </AnimatePresence>
       <BottomNav />
