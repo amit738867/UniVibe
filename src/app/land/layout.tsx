@@ -46,7 +46,7 @@ export default function RootLayout({
       <body className="font-body antialiased">
           {children}
         <Toaster />
-        <Script src="/sw-reg.js" strategy="afterInteractive" />
+        <Script src="/sw-reg.js" strategy="beforeInteractive" />
       </body>
     </html>
   );

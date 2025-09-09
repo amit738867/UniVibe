@@ -77,9 +77,6 @@ export function usePWA() {
     // Wait for the user to respond
     const { outcome } = await promptEvent.userChoice;
     
-    // We can only use the prompt once, so clear it.
-    // Important: Only clear the prompt if the user accepted.
-    // If they dismissed it, we want the prompt to be available on next page load.
     if (outcome === 'accepted') {
       console.log('User accepted the install prompt');
       window.deferredPrompt = null;
@@ -88,7 +85,8 @@ export function usePWA() {
       return true;
     } else {
       console.log('User dismissed the install prompt');
-      // The prompt remains available. We don't change canInstall state here.
+      // The prompt remains available if the user dismissed it.
+      // We don't change canInstall state here, it should stay true.
       return false;
     }
   }, []);
