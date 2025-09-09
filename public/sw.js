@@ -1,65 +1,17 @@
 
-const CACHE_NAME = 'univibe-cache-v1';
-const urlsToCache = [
-  '/',
-  '/land',
-  '/discover',
-  '/matches',
-  '/profile',
-  '/globals.css'
-];
+// A basic, no-op service worker file.
+// This is required for a web app to be considered a PWA.
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-  );
+self.addEventListener('install', (event) => {
+  console.log('Service Worker: Installing...');
+  // You can add pre-caching logic here if needed.
 });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then(
-          response => {
-            if(!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          }
-        );
-      })
-    );
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker: Activating...');
 });
 
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
+self.addEventListener('fetch', (event) => {
+  // This service worker doesn't intercept fetch requests.
+  // It's just here to make the app installable.
 });

@@ -4,84 +4,84 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-interface BeforeInstallPromptEvent extends Event {
-  readonly platforms: string[];
-  readonly userChoice: Promise<{
-    outcome: 'accepted' | 'dismissed';
-    platform: string;
-  }>;
-  prompt(): Promise<void>;
+// The 'beforeinstallprompt' event is captured by a script in public/sw-reg.js
+// and the event object is stored in window.deferredPrompt.
+declare global {
+  interface Window {
+    deferredPrompt: any;
+  }
 }
 
 export function usePWA() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [canInstall, setCanInstall] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    // This function handles the browser's install prompt event.
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      // Store the event so it can be triggered later.
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-      // Update UI to notify the user they can install the PWA
-      setCanInstall(true);
-      console.log(`'beforeinstallprompt' event was fired.`);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
     // This function runs when the app is successfully installed.
     const handleAppInstalled = () => {
-      // Hide the app-provided install promotion
-      setCanInstall(false);
-      setDeferredPrompt(null);
       console.log('PWA was installed');
-      // Redirect to login after successful installation
+      // Hide the install prompt and clear the stored event
+      setCanInstall(false);
+      window.deferredPrompt = null;
+      // Redirect to the app's main page after installation
       router.push('/');
     };
 
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // Check if the app is already installed (running in standalone mode)
-    if (typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches) {
-        console.log('App is already in standalone mode.');
-        setCanInstall(false);
+    // Check if the prompt was already captured by the global script
+    if (window.deferredPrompt) {
+      console.log('Install prompt was already captured.');
+      setCanInstall(true);
+    } else {
+      // If not, listen for it to be captured.
+      // This covers cases where the component mounts before the event fires.
+      const handleBeforeInstallPrompt = (e: Event) => {
+        // The event is stored globally by sw-reg.js, we just need to update state
+        console.log("'beforeinstallprompt' event was fired and captured.");
+        setCanInstall(true);
+      };
+      window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      
+      // Cleanup listener if component unmounts before event fires
+      return () => {
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      };
     }
-    
+
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, [router]);
 
   const installPWA = useCallback(async (): Promise<boolean> => {
-    if (!deferredPrompt) {
+    const promptEvent = window.deferredPrompt;
+    if (!promptEvent) {
       console.log('Install prompt not available');
       return false;
     }
     
-    // Show the install prompt
-    await deferredPrompt.prompt();
+    // Show the browser's install prompt
+    await promptEvent.prompt();
     
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice;
+    // Wait for the user to respond
+    const { outcome } = await promptEvent.userChoice;
     
-    // We've used the prompt, and can't use it again, clear it
-    setDeferredPrompt(null);
+    // We can only use the prompt once, so clear it.
+    window.deferredPrompt = null;
     
     if (outcome === 'accepted') {
-      console.log('User accepted the A2HS prompt');
-      // The 'appinstalled' event listener will handle the redirect.
+      console.log('User accepted the install prompt');
+      // The 'appinstalled' event listener will handle the rest.
       return true;
     } else {
-      console.log('User dismissed the A2HS prompt');
-      // If dismissed, we should allow the prompt to be shown again later.
-      // The browser will automatically re-fire 'beforeinstallprompt' when it's ready.
-      setCanInstall(true); 
+      console.log('User dismissed the install prompt');
+      // If dismissed, the browser may not fire the event again,
+      // so we should hide the button for this session.
+      setCanInstall(false);
       return false;
     }
-  }, [deferredPrompt]);
+  }, []);
 
   return { canInstall, installPWA };
 }
