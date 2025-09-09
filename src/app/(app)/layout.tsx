@@ -1,6 +1,4 @@
 
-import { Toaster } from "@/components/ui/toaster"
-
 export default function AppRootLayout({
   children,
 }: Readonly<{
@@ -9,7 +7,6 @@ export default function AppRootLayout({
   return (
     <>
       {children}
-      <Toaster />
     </>
   );
 }

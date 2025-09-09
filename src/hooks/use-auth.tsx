@@ -38,17 +38,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // This effect runs once on mount to handle the redirect result from Google Sign-In.
     const processRedirectResult = async () => {
       try {
         const result = await getRedirectResult(auth);
         if (result) {
-          // User has successfully signed in via redirect.
-          // The onAuthStateChanged listener below will handle the user state update.
+          // This means the user has just signed in via redirect.
           toast({
             title: `Welcome, ${result.user.displayName}!`,
             description: "You've successfully signed in.",
           });
+          // The onAuthStateChanged listener below will handle the user state and redirect to /discover
         }
       } catch (error: any) {
         console.error("Error during getRedirectResult:", error);
@@ -58,7 +57,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           variant: 'destructive',
         });
       } finally {
-        // This is critical to signal that we are done checking for a redirect result.
         setIsProcessingRedirect(false);
       }
     };
@@ -66,13 +64,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [toast]);
 
   useEffect(() => {
-    // This is the primary listener for any auth state changes.
+    // This listener handles auth state changes from all sources (popup, redirect, session persistence)
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setAuthLoading(false);
       if (currentUser) {
-        // Only redirect if not already on an app page
-        if (!['/discover', '/matches', '/profile'].some(path => window.location.pathname.startsWith(path))) {
+        // Only redirect if we are not on the landing page, to avoid loops
+        if(window.location.pathname !== '/discover') {
           router.push('/discover');
         }
       }
@@ -81,26 +79,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, [router]);
 
-  // The overall loading state depends on both the initial auth check and the redirect processing.
   const loading = authLoading || isProcessingRedirect;
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+        'auth_domain': process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    });
+
     try {
       if (isMobile) {
-        // On mobile, we use signInWithRedirect. The result is handled by getRedirectResult.
+        // This will navigate away and then back, the result is handled by getRedirectResult
         await signInWithRedirect(auth, provider);
       } else {
-        // On desktop, signInWithPopup is a better user experience.
+        // This will open a popup
         const result = await signInWithPopup(auth, provider);
         toast({
             title: `Welcome, ${result.user.displayName}!`,
             description: "You've successfully signed in.",
         });
-        // onAuthStateChanged will handle the user state update and redirect.
+        // onAuthStateChanged will handle the redirect
       }
     } catch (error: any) {
-       // Avoid showing an error toast if the user simply closes the popup.
+      console.error("Error signing in with Google", error);
        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
          toast({
           title: 'Error signing in',
@@ -122,8 +123,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
-      router.push('/login');
+      router.push('/');
     } catch (error) {
+      console.error("Error signing out", error);
        toast({
           title: 'Error signing out',
           description: (error as Error).message,

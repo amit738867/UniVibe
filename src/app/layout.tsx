@@ -1,4 +1,3 @@
-
 import type {Metadata} from 'next';
 import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
@@ -10,19 +9,6 @@ const APP_DESCRIPTION = "Find your spark on campus.";
 export const metadata: Metadata = {
   title: APP_NAME,
   description: APP_DESCRIPTION,
-  manifest: '/manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: APP_NAME,
-  },
-  formatDetection: {
-    telephone: false,
-  },
-  icons: {
-    icon: '/icons/icon-192x192.png',
-    apple: '/icons/apple-touch-icon.png',
-  }
 };
 
 export default function RootLayout({
@@ -37,9 +23,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet" />
-        <script src="/sw-reg.js" defer></script>
       </head>
-      <body>
+      <body className="font-body antialiased">
         <AuthProvider>
           {children}
         </AuthProvider>

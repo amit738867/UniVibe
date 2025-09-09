@@ -1,190 +1,162 @@
 
+
 'use client';
 
-import { motion } from 'framer-motion';
-import { Sparkles, Users, Compass, Download, Loader2 } from 'lucide-react';
-import { UniVibeLogo } from '@/components/icons';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { usePWA } from '@/hooks/use-pwa';
-import { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { UniVibeLogo } from '@/components/icons';
+import { Separator } from '@/components/ui/separator';
+import { Label } from '@/components/ui/label';
+import { useAuth } from '@/hooks/use-auth';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-const features = [
-    {
-        icon: <Compass className="h-8 w-8 text-primary" />,
-        title: 'Discover People',
-        description: 'Swipe through profiles of students on your campus and find new connections.',
-    },
-    {
-        icon: <Sparkles className="h-8 w-8 text-primary" />,
-        title: 'AI-Powered Matches',
-        description: 'Let our smart AI suggest compatible matches based on your interests and personality.',
-    },
-    {
-        icon: <Users className="h-8 w-8 text-primary" />,
-        title: 'Build Your Circle',
-        description: 'Whether you\'re looking for friends or a relationship, UniVibe helps you connect.',
-    },
-];
-
-export default function LandingPage() {
-  const router = useRouter();
-  const { canInstall, isIos, installPWA } = usePWA();
-  const [isInstalling, setIsInstalling] = useState(false);
+export default function AuthenticationPage() {
+  const { user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isSigningUp, setIsSigningUp] = useState(false);
+  const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
 
-  const handleInstallClick = async () => {
-    if (isIos) {
-       toast({
-         title: 'To install, tap the Share button and then "Add to Home Screen".',
-       });
-       return;
-    }
+  useEffect(() => {
+     // If a user is logged in, useAuth will handle redirecting to /discover.
+  }, [router]);
 
-    if (!canInstall) {
-        router.push('/login');
-        return;
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleSigningIn(true);
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
+      toast({
+        title: 'Error signing in',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      // Don't set isGoogleSigningIn to false, as the page will redirect.
     }
-    
-    setIsInstalling(true);
-    const installed = await installPWA();
-    if (!installed) {
-        // If installation was cancelled, go to login as a fallback.
-        router.push('/login');
-    }
-     // On successful installation, the `appinstalled` event will handle the redirect.
-    setIsInstalling(false);
   };
+
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSigningIn(true);
+    try {
+      await signInWithEmail(email, password);
+    } catch (error: any) {
+      toast({
+        title: 'Error signing in',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
+  
+  const handleEmailSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSigningUp(true);
+     try {
+      await signUpWithEmail(email, password);
+    } catch (error: any) {
+      toast({
+        title: 'Error signing up',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSigningUp(false);
+    }
+  }
+
+  // Show a loader while auth state is being determined.
+  const isAnyLoading = loading || isSigningIn || isSigningUp || isGoogleSigningIn;
 
 
   return (
-    <div className="relative min-h-screen w-full overflow-y-auto bg-background text-foreground">
-      {/* Animated Background */}
+    <div className="relative min-h-screen w-full overflow-hidden bg-background">
+       {isAnyLoading && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      )}
       <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
         <div className="absolute left-1/4 top-0 h-72 w-72 animate-flare-1 rounded-full bg-primary/20 opacity-90 blur-[120px] filter"></div>
         <div className="absolute right-1/4 bottom-0 h-72 w-72 animate-flare-2 rounded-full bg-accent/20 opacity-90 blur-[120px] filter"></div>
+        <div className="absolute left-1/2 top-1/2 h-48 w-48 animate-flare-3 rounded-full bg-primary/10 opacity-80 blur-[100px] filter"></div>
+        <div className="absolute right-1/3 top-1/3 h-60 w-60 animate-flare-4 rounded-full bg-accent/10 opacity-80 blur-[110px] filter"></div>
       </div>
-      
-      <main className="relative z-10">
-        {/* Hero Section */}
-        <section className="flex flex-col items-center justify-center min-h-screen text-center px-4 py-20">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-            >
-              <UniVibeLogo className="h-24 w-24 text-primary" />
-            </motion.div>
-
-            <motion.h1
-              className="mt-6 text-5xl md:text-7xl font-bold font-headline text-primary"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
-            >
-              UniVibe
-            </motion.h1>
-
-            <motion.p
-              className="mt-4 max-w-2xl text-lg md:text-xl text-muted-foreground"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}
-            >
-              Find your spark on campus. Connect with classmates, discover new friends, and maybe even find love.
-            </motion.p>
-
-            <motion.div
-              className="mt-10"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
-            >
-              <Button
-                size="lg"
-                className="h-14 px-10 text-lg font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg"
-                onClick={handleInstallClick}
-                disabled={isInstalling}
-              >
-                 {isInstalling ? (
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                 ) : (
-                    <Download className="mr-2 h-5 w-5" />
-                 )}
-                 {canInstall || isIos ? 'Install App' : 'Get Started'}
+      <div className="relative z-10 flex min-h-screen items-center justify-center">
+        <div className="mx-auto flex w-full max-w-sm flex-col items-center justify-center space-y-6 px-4 py-12">
+           <div className="grid gap-4 text-center">
+            <UniVibeLogo className="h-16 w-16 text-primary mx-auto" />
+            <h1 className="text-5xl font-bold font-headline text-primary">UniVibe</h1>
+            <p className="text-balance text-muted-foreground">
+              Find your spark. Connect with classmates.
+            </p>
+          </div>
+          <div className="grid w-full gap-4">
+              <Button onClick={handleGoogleSignIn} type="button" className="w-full font-bold h-11 text-base" disabled={isGoogleSigningIn}>
+                 {isGoogleSigningIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Sign in with Google
               </Button>
-            </motion.div>
-        </section>
-
-        {/* Features Section */}
-        <section className="py-20 px-4 bg-secondary/30">
-            <div className="container mx-auto max-w-5xl">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.5 }}
-                    transition={{ duration: 0.8 }}
-                >
-                    <h2 className="text-4xl font-headline font-bold text-center mb-4">Why UniVibe?</h2>
-                    <p className="text-lg text-muted-foreground text-center mb-12 max-w-3xl mx-auto">
-                        Tired of endless swiping with no results? We use smart technology to help you make meaningful connections on campus.
-                    </p>
-                </motion.div>
-
-                <div className="grid md:grid-cols-3 gap-8">
-                    {features.map((feature, index) => (
-                        <motion.div
-                            key={index}
-                            className="text-center p-6 bg-background/50 rounded-lg shadow-lg border border-border"
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, amount: 0.5 }}
-                            transition={{ duration: 0.5, delay: index * 0.2 }}
-                        >
-                            <div className="flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 mx-auto mb-4">
-                                {feature.icon}
-                            </div>
-                            <h3 className="text-xl font-headline font-semibold mb-2">{feature.title}</h3>
-                            <p className="text-muted-foreground">{feature.description}</p>
-                        </motion.div>
-                    ))}
-                </div>
+            <div className="flex items-center gap-4">
+                <Separator className="flex-1" />
+                <span className="text-xs text-muted-foreground">OR</span>
+                <Separator className="flex-1" />
             </div>
-        </section>
-
-        {/* Visuals Section */}
-        <section className="py-20 px-4">
-            <div className="container mx-auto max-w-5xl grid md:grid-cols-2 gap-12 items-center">
-                <motion.div
-                     initial={{ opacity: 0, x: -50 }}
-                     whileInView={{ opacity: 1, x: 0 }}
-                     viewport={{ once: true, amount: 0.5 }}
-                     transition={{ duration: 0.8 }}
-                >
-                    <h2 className="text-4xl font-headline font-bold mb-4">Beautiful Profiles, Real Connections</h2>
-                    <p className="text-lg text-muted-foreground mb-6">
-                        Showcase your personality with customizable profiles. Add your interests, your major, and photos that show who you really are. Our focus is on helping you find genuine connections that go beyond the screen.
-                    </p>
-                    <Button onClick={() => router.push('/login')} variant="outline">Join the Vibe</Button>
-                </motion.div>
-                <motion.div
-                     initial={{ opacity: 0, scale: 0.8 }}
-                     whileInView={{ opacity: 1, scale: 1 }}
-                     viewport={{ once: true, amount: 0.5 }}
-                     transition={{ duration: 0.8, delay: 0.2 }}
-                >
-                    <Image src="https://picsum.photos/600/400" alt="App Screenshot" width={600} height={400} className="rounded-lg shadow-2xl" data-ai-hint="app screenshot"/>
-                </motion.div>
-            </div>
-        </section>
-
-         {/* Footer */}
-        <footer className="text-center py-8 border-t border-border">
-            <p className="text-muted-foreground">&copy; {new Date().getFullYear()} UniVibe. Find your people.</p>
-        </footer>
-      </main>
+            <form onSubmit={handleEmailSignIn} className="grid gap-4">
+              <div className="relative">
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Email"
+                  required
+                  className="peer h-11 bg-input/80 border-border text-base"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="relative">
+                <Input 
+                  id="password" 
+                  type="password" 
+                  required 
+                  placeholder="Password" 
+                  className="peer h-11 bg-input/80 border-border text-base"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <Link
+                href="#"
+                className="ml-auto -mt-2 inline-block text-sm text-primary/80 underline-offset-4 hover:text-primary hover:underline"
+              >
+                Forgot your password?
+              </Link>
+              <div className="grid grid-cols-2 gap-4">
+                 <Button variant="outline" className="w-full h-11 text-base" type="submit" disabled={isSigningIn}>
+                  {isSigningIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                   Login
+                 </Button>
+                 <Button variant="outline" className="w-full h-11 text-base" onClick={handleEmailSignUp} disabled={isSigningUp}>
+                   {isSigningUp ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                   Sign Up
+                  </Button>
+              </div>
+            </form>
+           
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
