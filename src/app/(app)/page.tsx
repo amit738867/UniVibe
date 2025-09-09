@@ -24,27 +24,25 @@ export default function AuthenticationPage() {
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
 
-  useEffect(() => {
-     // If a user is logged in, useAuth will handle redirecting to /discover.
-  }, [router]);
+ 
 
 
   const handleGoogleSignIn = async () => {
     setIsGoogleSigningIn(true);
     try {
       await signInWithGoogle();
+      // On desktop, the onAuthStateChanged listener will handle the redirect.
+      // On mobile, the page will redirect away and back, so we don't need to set loading to false.
     } catch (error: any) {
-       if (error.code === 'auth/popup-closed-by-user') {
-        // User closed the popup, so we just reset the UI
-        console.log("Sign-in popup closed by user.");
-      } else {
+      // This handles the 'popup-closed-by-user' case.
+      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
         toast({
-            title: 'Error signing in',
-            description: error.message,
-            variant: 'destructive',
+          title: 'Error signing in',
+          description: error.message,
+          variant: 'destructive',
         });
       }
-    } finally {
+      // If the popup is closed or another error occurs, reset the loading state
       setIsGoogleSigningIn(false);
     }
   };

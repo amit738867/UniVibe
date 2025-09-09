@@ -42,20 +42,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const result = await getRedirectResult(auth);
         if (result) {
-          // This means the user has just signed in via redirect.
           toast({
             title: `Welcome, ${result.user.displayName}!`,
             description: "You've successfully signed in.",
           });
-          // The onAuthStateChanged listener below will handle the user state and redirect to /discover
         }
       } catch (error: any) {
-        console.error("Error during getRedirectResult:", error);
-        toast({
-          title: 'Sign-in Error',
-          description: error.message,
-          variant: 'destructive',
-        });
+        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+          console.error("Error during getRedirectResult:", error);
+          toast({
+            title: 'Sign-in Error',
+            description: error.message,
+            variant: 'destructive',
+          });
+        }
       } finally {
         setIsProcessingRedirect(false);
       }
@@ -64,15 +64,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [toast]);
 
   useEffect(() => {
-    // This listener handles auth state changes from all sources (popup, redirect, session persistence)
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setAuthLoading(false);
       if (currentUser) {
-        // Only redirect if we are not on the landing page, to avoid loops
-        if(window.location.pathname !== '/discover') {
-          router.push('/discover');
-        }
+        router.push('/discover');
       }
     });
 
@@ -83,33 +79,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    // This is the key fix: Explicitly set the authDomain to prevent redirect errors on mobile.
     provider.setCustomParameters({
         'auth_domain': process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     });
 
-    try {
-      if (isMobile) {
-        // This will navigate away and then back, the result is handled by getRedirectResult
-        await signInWithRedirect(auth, provider);
-      } else {
-        // This will open a popup
-        const result = await signInWithPopup(auth, provider);
-        toast({
-            title: `Welcome, ${result.user.displayName}!`,
-            description: "You've successfully signed in.",
-        });
-        // onAuthStateChanged will handle the redirect
-      }
-    } catch (error: any) {
-      console.error("Error signing in with Google", error);
-       if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-         toast({
-          title: 'Error signing in',
-          description: error.message,
-          variant: 'destructive',
-        });
-       }
+    if (isMobile) {
+      await signInWithRedirect(auth, provider);
+    } else {
+      await signInWithPopup(auth, provider);
     }
   };
 
