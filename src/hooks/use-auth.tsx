@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(currentUser);
       setAuthLoading(false);
       if (currentUser) {
-        if (window.location.pathname !== '/discover') {
+        if (!['/discover', '/matches', '/profile'].some(path => window.location.pathname.startsWith(path))) {
           router.push('/discover');
         }
       }
@@ -127,7 +127,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
-      router.push('/');
+      router.push('/login');
     } catch (error) {
        toast({
           title: 'Error signing out',

@@ -1,4 +1,5 @@
 import { AuthProvider } from '@/hooks/use-auth';
+import { Toaster } from "@/components/ui/toaster"
 
 export default function AppRootLayout({
   children,
@@ -8,6 +9,7 @@ export default function AppRootLayout({
   return (
     <AuthProvider>
       {children}
+      <Toaster />
     </AuthProvider>
   );
 }
