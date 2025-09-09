@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { AnimatePresence, motion, PanInfo } from 'framer-motion';
 import { mockProfiles, type UserProfile } from '@/lib/data';
 import ProfileCard from './profile-card';
-import ActionButtons from './action-buttons';
 import AiMatchDialog from './ai-match-dialog';
 import MatchModal from './match-modal';
 
@@ -95,7 +94,6 @@ export default function DiscoverClient() {
             .slice(0, 1)}
         </AnimatePresence>
       </div>
-      <ActionButtons onDislike={() => paginate(-1)} onLike={() => paginate(1)} />
       {lastMatchedUser && (
         <MatchModal
             isOpen={isMatchModalOpen}
