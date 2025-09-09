@@ -62,7 +62,7 @@ export function usePWA() {
     }
     
     // Show the browser's install prompt
-    await promptEvent.prompt();
+    promptEvent.prompt();
     
     // Wait for the user to respond
     const { outcome } = await promptEvent.userChoice;
