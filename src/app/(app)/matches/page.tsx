@@ -2,14 +2,11 @@
 
 import Link from 'next/link';
 import { mockMatches } from '@/lib/data';
-import AppLayout from '@/components/app-layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
 
 export default function MatchesPage() {
   return (
-    <AppLayout>
       <div className="container mx-auto max-w-2xl py-4 md:py-8 h-full px-2 sm:px-4">
         <h1 className="text-2xl md:text-3xl font-headline font-bold mb-4 sm:mb-6 px-2 sm:px-0">Matches</h1>
         <Card className="p-2">
@@ -39,6 +36,5 @@ export default function MatchesPage() {
           </div>
         </Card>
       </div>
-    </AppLayout>
   );
 }
