@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -98,18 +99,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // onAuthStateChanged will handle the redirect
       }
     } catch (error: any) {
-       // Gracefully handle the case where the user closes the popup.
-       if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-         console.log('Sign-in popup closed by user.');
-         return;
-       }
-      
+      // Re-throw the error so the calling component can handle it,
+      // particularly the case where the user closes the popup.
       console.error("Error signing in with Google", error);
-      toast({
-        title: 'Error signing in',
-        description: error.message,
-        variant: 'destructive',
-      });
+      throw error;
     }
   };
 
