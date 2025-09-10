@@ -20,6 +20,7 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const [direction, setDirection] = useState(1);
+  const [isNavigating, setIsNavigating] = useState(false);
   const prevPathnameRef = useRef(pathname);
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
   useEffect(() => {
     const currentIndex = navLinks.findIndex((link) => prevPathnameRef.current.startsWith(link.href));
     const newIndex = navLinks.findIndex((link) => pathname.startsWith(link.href));
-    
+        
     if (currentIndex !== -1 && newIndex !== -1) {
         if (newIndex > currentIndex) {
             setDirection(1);
@@ -40,8 +41,17 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
         }
     }
 
+    // Reset navigation state when pathname changes
+    if (prevPathnameRef.current !== pathname) {
+      setIsNavigating(false);
+    }
+
     prevPathnameRef.current = pathname;
   }, [pathname]);
+
+  const handleDragStart = () => {
+    setIsNavigating(true);
+  };
 
   const handleDragEnd = (event: any, info: any) => {
     const offset = info.offset.x;
@@ -50,20 +60,35 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
 
     const currentIndex = navLinks.findIndex((link) => pathname.startsWith(link.href));
 
-    if (currentIndex === -1) return;
+    if (currentIndex === -1) {
+      setIsNavigating(false);
+      return;
+    }
+
+    let shouldNavigate = false;
+    let targetPage = '';
 
     if (offset > swipeThreshold || velocity > 500) {
       // Swiped right (to a previous tab)
       if (currentIndex > 0) {
-        const prevPage = navLinks[currentIndex - 1].href;
-        router.push(prevPage);
+        targetPage = navLinks[currentIndex - 1].href;
+        shouldNavigate = true;
       }
     } else if (offset < -swipeThreshold || velocity < -500) {
       // Swiped left (to a next tab)
       if (currentIndex < navLinks.length - 1) {
-        const nextPage = navLinks[currentIndex + 1].href;
-        router.push(nextPage);
+        targetPage = navLinks[currentIndex + 1].href;
+        shouldNavigate = true;
       }
+    }
+
+    if (shouldNavigate) {
+      // Small delay to allow drag animation to complete before navigation
+      setTimeout(() => {
+        router.push(targetPage);
+      }, 50);
+    } else {
+      setIsNavigating(false);
     }
   };
 
@@ -78,10 +103,27 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
       opacity: 1,
     },
     exit: (direction: number) => ({
-      zIndex: 0,
+      zIndex: 1,
       x: direction < 0 ? '100%' : '-100%',
-      opacity: 0,
+      opacity: 1,
     }),
+  };
+
+  const dragVariants = {
+    enter: {
+      x: 0,
+      opacity: 1,
+    },
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+    },
+    exit: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+    },
   };
 
   return (
@@ -101,17 +143,23 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
             <motion.main
               key={pathname}
               custom={direction}
-              variants={variants}
+              variants={isNavigating ? dragVariants : variants}
               initial="enter"
               animate="center"
               exit="exit"
               transition={{
-                x: { type: 'spring', stiffness: 300, damping: 30, duration: 0.2 },
+                x: { type: 'spring', stiffness: 50, damping: 10, duration: 0.2 },
                 opacity: { duration: 0.2 },
               }}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.1}
+              onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
+              whileDrag={{ 
+                scale: 0.95,
+                rotateY: 5,
+              }}
               className="absolute w-full h-full"
             >
               {children}
