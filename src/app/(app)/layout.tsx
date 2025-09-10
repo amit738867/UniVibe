@@ -1,11 +1,10 @@
-
 'use client';
 
 import type { ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/hooks/use-auth';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import Header from '@/components/header';
 import BottomNav from '@/components/bottom-nav';
@@ -21,31 +20,29 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const [direction, setDirection] = useState(1);
+  const prevPathnameRef = useRef(pathname);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/');
     }
   }, [user, loading, router]);
-  
-  const navigate = (newPath: string) => {
-    const currentIndex = navLinks.findIndex((link) => pathname.startsWith(link.href));
-    const newIndex = navLinks.findIndex((link) => newPath.startsWith(link.href));
-    
-    if (currentIndex === -1 || newIndex === -1) {
-      router.push(newPath);
-      return;
-    }
-    
+
+  useEffect(() => {
+    // This effect ensures that even when navigating with the bottom bar,
+    // the direction is set correctly.
+    const currentIndex = navLinks.findIndex((link) => prevPathnameRef.current.startsWith(link.href));
+    const newIndex = navLinks.findIndex((link) => pathname.startsWith(link.href));
+
     if (newIndex > currentIndex) {
       setDirection(1);
-    } else {
+    } else if (newIndex < currentIndex) {
       setDirection(-1);
     }
     
-    router.push(newPath);
-  }
-
+    prevPathnameRef.current = pathname;
+  }, [pathname]);
+  
   const handleDragEnd = (event: any, info: any) => {
     const offset = info.offset.x;
     const velocity = info.velocity.x;
@@ -59,13 +56,13 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
       // Swiped right (to a previous tab)
       if (currentIndex > 0) {
         const prevPage = navLinks[currentIndex - 1].href;
-        navigate(prevPage);
+        router.push(prevPage);
       }
     } else if (offset < -swipeThreshold || velocity < -500) {
       // Swiped left (to a next tab)
       if (currentIndex < navLinks.length - 1) {
         const nextPage = navLinks[currentIndex + 1].href;
-        navigate(nextPage);
+        router.push(nextPage);
       }
     }
   };
@@ -73,7 +70,7 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
   const variants = {
     enter: (direction: number) => ({
       x: direction > 0 ? '100%' : '-100%',
-      opacity: 0,
+      opacity: 0.5,
     }),
     center: {
       zIndex: 1,
@@ -83,7 +80,7 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
     exit: (direction: number) => ({
       zIndex: 0,
       x: direction < 0 ? '100%' : '-100%',
-      opacity: 0,
+      opacity: 0.5,
     }),
   };
 
@@ -109,7 +106,7 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
               animate="center"
               exit="exit"
               transition={{
-                x: { type: 'spring', stiffness: 300, damping: 30 },
+                x: { type: 'spring', stiffness: 300, damping: 30, duration: 0.2 },
                 opacity: { duration: 0.2 },
               }}
               drag="x"
