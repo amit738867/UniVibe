@@ -80,9 +80,6 @@ export default function DiscoverClient() {
                 key={profile.id}
                 className="absolute"
                 style={{ zIndex: profiles.length - index }}
-                initial={{ scale: 0.95, y: 20, opacity: 0 }}
-                animate={{ scale: 1, y: 0, opacity: 1, transition: { duration: 0.4, ease: 'easeOut' } }}
-                exit={{ x: exitX, opacity: 0, scale: 0.8, transition: { duration: 0.4, ease: 'easeIn' } }}
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={1}
