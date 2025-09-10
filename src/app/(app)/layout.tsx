@@ -29,20 +29,20 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
   }, [user, loading, router]);
 
   useEffect(() => {
-    // This effect ensures that even when navigating with the bottom bar,
-    // the direction is set correctly.
     const currentIndex = navLinks.findIndex((link) => prevPathnameRef.current.startsWith(link.href));
     const newIndex = navLinks.findIndex((link) => pathname.startsWith(link.href));
-
-    if (newIndex > currentIndex) {
-      setDirection(1);
-    } else if (newIndex < currentIndex) {
-      setDirection(-1);
-    }
     
+    if (currentIndex !== -1 && newIndex !== -1) {
+        if (newIndex > currentIndex) {
+            setDirection(1);
+        } else if (newIndex < currentIndex) {
+            setDirection(-1);
+        }
+    }
+
     prevPathnameRef.current = pathname;
   }, [pathname]);
-  
+
   const handleDragEnd = (event: any, info: any) => {
     const offset = info.offset.x;
     const velocity = info.velocity.x;
@@ -70,7 +70,7 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
   const variants = {
     enter: (direction: number) => ({
       x: direction > 0 ? '100%' : '-100%',
-      opacity: 0.5,
+      opacity: 0,
     }),
     center: {
       zIndex: 1,
@@ -80,7 +80,7 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
     exit: (direction: number) => ({
       zIndex: 0,
       x: direction < 0 ? '100%' : '-100%',
-      opacity: 0.5,
+      opacity: 0,
     }),
   };
 
@@ -112,7 +112,7 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
               onDragEnd={handleDragEnd}
-              className="h-full"
+              className="absolute w-full h-full"
             >
               {children}
             </motion.main>
