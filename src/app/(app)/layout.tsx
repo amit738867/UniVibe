@@ -113,12 +113,16 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
     }),
   };
 
-  if (loading || !user) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
