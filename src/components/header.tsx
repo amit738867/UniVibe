@@ -38,7 +38,7 @@ export default function Header() {
           </Link>
         </div>
 
-        <nav className="hidden md:flex items-center gap-4 mx-auto">
+        <nav className="hidden sm:flex items-center gap-4 mx-auto">
           {navLinks.map((link) => (
             <Link
               key={link.href}

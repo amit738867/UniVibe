@@ -15,7 +15,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 p-2 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 p-2 sm:hidden">
       <div className="relative mx-auto max-w-sm rounded-full border bg-background/95 backdrop-blur-sm">
         <div className="container grid h-16 grid-cols-3 items-center justify-items-center px-4">
           {navLinks.map((link) => {
