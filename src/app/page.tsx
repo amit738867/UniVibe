@@ -12,13 +12,12 @@ import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function AuthenticationPage() {
-  const { signInWithEmail, signUpWithEmail, loading, user } = useAuth();
+  const { signInWithEmail, loading, user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
-  const [isSigningUp, setIsSigningUp] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -42,25 +41,8 @@ export default function AuthenticationPage() {
       setIsSigningIn(false);
     }
   };
-  
-  const handleEmailSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSigningUp(true);
-     try {
-      await signUpWithEmail(email, password);
-      router.push('/discover');
-    } catch (error: any) {
-      toast({
-        title: 'Error signing up',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSigningUp(false);
-    }
-  }
 
-  const isAnyLoading = loading || isSigningIn || isSigningUp;
+  const isAnyLoading = loading || isSigningIn;
 
   if (loading || user) {
     return (
@@ -119,22 +101,23 @@ export default function AuthenticationPage() {
                   disabled={isAnyLoading}
                 />
               </div>
-              <Link
-                href="#"
-                className="ml-auto -mt-2 inline-block text-sm text-primary/80 underline-offset-4 hover:text-primary hover:underline"
-              >
-                Forgot your password?
-              </Link>
-              <div className="grid grid-cols-2 gap-4">
-                 <Button variant="outline" className="w-full h-11 text-base" type="submit" disabled={isAnyLoading}>
-                  {isSigningIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                   Login
-                 </Button>
-                 <Button variant="outline" className="w-full h-11 text-base" type="button" onClick={handleEmailSignUp} disabled={isAnyLoading}>
-                   {isSigningUp ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                   Sign Up
-                  </Button>
+              <div className="flex items-center justify-between -mt-2">
+                 <p className="text-sm">
+                    <span className="text-muted-foreground">Don't have an account? </span>
+                    <Link href="/signup" className="font-semibold text-primary underline-offset-4 hover:underline">Sign Up</Link>
+                 </p>
+                 <Link
+                    href="#"
+                    className="ml-auto inline-block text-sm text-primary/80 underline-offset-4 hover:text-primary hover:underline"
+                 >
+                    Forgot password?
+                </Link>
               </div>
+
+             <Button variant="outline" className="w-full h-11 text-base" type="submit" disabled={isAnyLoading}>
+              {isSigningIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+               Login
+             </Button>
             </form>
            
           </div>
