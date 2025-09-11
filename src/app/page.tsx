@@ -25,6 +25,7 @@ export default function AuthenticationPage() {
     }
   }, [user, loading, router]);
 
+
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSigningIn(true);
@@ -42,15 +43,7 @@ export default function AuthenticationPage() {
     }
   };
 
-  if (loading) {
-    return (
-       <div className="relative min-h-screen w-full flex items-center justify-center bg-background">
-         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-       </div>
-     );
-  }
-
-  const isAnyLoading = isSigningIn;
+  const isAnyLoading = loading || isSigningIn;
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background">
