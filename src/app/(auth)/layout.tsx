@@ -26,8 +26,10 @@ export default function SignUpLayout({ children }: { children: ReactNode }) {
   const currentStepIndex = steps.indexOf(pathname);
 
   useEffect(() => {
-    if (loading) return;
-
+    if (loading) {
+      return; // Do nothing while loading
+    }
+    
     // If user is logged in and on the first step, move them to the next one.
     if (user && pathname === '/signup') {
       router.push('/signup/create-profile');
