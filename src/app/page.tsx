@@ -20,37 +20,36 @@ export default function AuthenticationPage() {
   const [isSigningIn, setIsSigningIn] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (!loading && user) {
       router.push('/discover');
     }
-  }, [user, router]);
+  }, [user, loading, router]);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSigningIn(true);
     try {
       await signInWithEmail(email, password);
-      router.push('/discover');
+      // The useEffect will handle the redirect
     } catch (error: any) {
       toast({
         title: 'Error signing in',
         description: error.message,
         variant: 'destructive',
       });
-    } finally {
       setIsSigningIn(false);
     }
   };
 
-  const isAnyLoading = loading || isSigningIn;
-
-  if (loading || user) {
+  if (loading) {
     return (
        <div className="relative min-h-screen w-full flex items-center justify-center bg-background">
          <Loader2 className="h-10 w-10 animate-spin text-primary" />
        </div>
      );
   }
+
+  const isAnyLoading = isSigningIn;
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background">

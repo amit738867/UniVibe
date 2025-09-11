@@ -113,15 +113,18 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
     }),
   };
 
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <div className="flex-1 relative overflow-hidden">
-        {loading || !user ? (
-          <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : (
           <AnimatePresence
             initial={false}
             custom={direction}
@@ -155,7 +158,6 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
               {children}
             </motion.main>
           </AnimatePresence>
-        )}
       </div>
       <BottomNav />
     </div>

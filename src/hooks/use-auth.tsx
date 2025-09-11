@@ -1,5 +1,5 @@
 
-"use client";
+'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { 
@@ -20,7 +20,7 @@ type AuthContextType = {
   signUpWithEmail: (email: string, pass: string) => Promise<any>;
   signInWithEmail: (email: string, pass: string) => Promise<any>;
   updateUserProfile: (data: { displayName?: string, photoURL?: string }) => Promise<void>;
-  signOut: () => Promise<void>;
+  signOut: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
-      router.push('/');
+      // The redirect will be handled by the layout component
     } catch (error) {
        toast({
           title: 'Error signing out',
