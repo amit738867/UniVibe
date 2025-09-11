@@ -97,7 +97,7 @@ export default function CreateProfilePage() {
                         {dob ? format(dob, "PPP") : <span>Pick a date</span>}
                     </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 justify-center items-center pl-12">
+                    <PopoverContent className="w-auto p-0 justify-center items-center">
                     <Calendar
                         mode="single"
                         selected={dob}
