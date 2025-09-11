@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UniVibeLogo } from '@/components/icons';
 import { useAuth } from '@/hooks/use-auth';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -19,6 +19,12 @@ export default function AuthenticationPage() {
   const [password, setPassword] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      router.push('/discover');
+    }
+  }, [user, router]);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,21 +62,12 @@ export default function AuthenticationPage() {
 
   const isAnyLoading = loading || isSigningIn || isSigningUp;
 
-  if (loading) {
+  if (loading || user) {
     return (
        <div className="relative min-h-screen w-full flex items-center justify-center bg-background">
          <Loader2 className="h-10 w-10 animate-spin text-primary" />
        </div>
      );
-  }
-
-  if (user) {
-    router.push('/discover');
-    return (
-      <div className="relative min-h-screen w-full flex items-center justify-center bg-background">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-      </div>
-    );
   }
 
   return (

@@ -20,7 +20,7 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const [direction, setDirection] = useState(1);
-  const [isNavigating, setIsNavigating] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const prevPathnameRef = useRef(pathname);
 
   useEffect(() => {
@@ -41,54 +41,54 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
         }
     }
 
-    // Reset navigation state when pathname changes
-    if (prevPathnameRef.current !== pathname) {
-      setIsNavigating(false);
-    }
-
     prevPathnameRef.current = pathname;
   }, [pathname]);
 
+  const navigate = (newPath: string) => {
+    const currentIndex = navLinks.findIndex((link) => pathname.startsWith(link.href));
+    const newIndex = navLinks.findIndex((link) => newPath.startsWith(link.href));
+
+    if (currentIndex === -1 || newIndex === -1) {
+      router.push(newPath);
+      return;
+    }
+
+    if (newIndex > currentIndex) {
+      setDirection(1);
+    } else {
+      setDirection(-1);
+    }
+
+    router.push(newPath);
+  }
+
   const handleDragStart = () => {
-    setIsNavigating(true);
+    setIsDragging(true);
   };
 
   const handleDragEnd = (event: any, info: any) => {
+    setIsDragging(false);
+    
     const offset = info.offset.x;
     const velocity = info.velocity.x;
     const swipeThreshold = 50;
 
     const currentIndex = navLinks.findIndex((link) => pathname.startsWith(link.href));
 
-    if (currentIndex === -1) {
-      setIsNavigating(false);
-      return;
-    }
-
-    let shouldNavigate = false;
-    let targetPage = '';
+    if (currentIndex === -1) return;
 
     if (offset > swipeThreshold || velocity > 500) {
       // Swiped right (to a previous tab)
       if (currentIndex > 0) {
-        targetPage = navLinks[currentIndex - 1].href;
-        shouldNavigate = true;
+        const prevPage = navLinks[currentIndex - 1].href;
+        navigate(prevPage);
       }
     } else if (offset < -swipeThreshold || velocity < -500) {
       // Swiped left (to a next tab)
       if (currentIndex < navLinks.length - 1) {
-        targetPage = navLinks[currentIndex + 1].href;
-        shouldNavigate = true;
+        const nextPage = navLinks[currentIndex + 1].href;
+        navigate(nextPage);
       }
-    }
-
-    if (shouldNavigate) {
-      // Small delay to allow drag animation to complete before navigation
-      setTimeout(() => {
-        router.push(targetPage);
-      }, 50);
-    } else {
-      setIsNavigating(false);
     }
   };
 
@@ -96,34 +96,20 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
     enter: (direction: number) => ({
       x: direction > 0 ? '100%' : '-100%',
       opacity: 0,
+      scale: 0,
     }),
     center: {
       zIndex: 1,
       x: 0,
       opacity: 1,
+      scale: 1,
     },
     exit: (direction: number) => ({
-      zIndex: 1,
+      zIndex: 0,
       x: direction < 0 ? '100%' : '-100%',
-      opacity: 1,
+      opacity: 0,
+      scale: 0,
     }),
-  };
-
-  const dragVariants = {
-    enter: {
-      x: 0,
-      opacity: 1,
-    },
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-    },
-    exit: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-    },
   };
 
   return (
@@ -138,18 +124,19 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
           <AnimatePresence
             initial={false}
             custom={direction}
-            mode="wait"
+            mode={isDragging ? "sync" : "wait"}
           >
             <motion.main
               key={pathname}
               custom={direction}
-              variants={isNavigating ? dragVariants : variants}
+              variants={variants}
               initial="enter"
               animate="center"
-              exit="exit"
+              // exit="exit"
               transition={{
-                x: { type: 'spring', stiffness: 50, damping: 10, duration: 0.2 },
+                x: { type: 'spring', stiffness: 100, damping: 30 },
                 opacity: { duration: 0.2 },
+                scale: { type: 'spring', stiffness: 400, damping: 25, duration: 0.3 },
               }}
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
@@ -157,10 +144,12 @@ export default function ProtectedRoutesLayout({ children }: { children: ReactNod
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
               whileDrag={{ 
-                scale: 0.95,
-                rotateY: 5,
+                scale: 0.98,
               }}
               className="absolute w-full h-full"
+              style={{
+                pointerEvents: isDragging ? 'auto' : 'auto',
+              }}
             >
               {children}
             </motion.main>
