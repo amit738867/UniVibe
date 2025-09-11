@@ -37,6 +37,7 @@ export default function AuthenticationPage() {
         description: error.message,
         variant: 'destructive',
       });
+    } finally {
       setIsSigningIn(false);
     }
   };
