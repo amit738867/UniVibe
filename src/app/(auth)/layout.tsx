@@ -26,8 +26,12 @@ export default function SignUpLayout({ children }: { children: ReactNode }) {
   const currentStepIndex = steps.indexOf(pathname);
 
   useEffect(() => {
-    if (!loading && !user && pathname !== '/signup') {
-      router.push('/signup');
+    if (!loading) {
+      if (user && pathname === '/signup') {
+        router.push('/signup/create-profile');
+      } else if (!user && pathname !== '/signup') {
+        router.push('/signup');
+      }
     }
   }, [user, loading, router, pathname]);
 
